@@ -1,6 +1,13 @@
 import { z } from 'zod';
 
-export const resumeSchema = z.object({
+export const enum skillProficiency {
+  beginner = 'Beginner',
+  intermediate = 'Intermediate',
+  advanced = 'Advanced',
+  expert = 'Expert'
+}
+
+export const resumeSchemaRequired = z.object({
   // header
   name: z.string(),
   title: z.string(),
@@ -10,65 +17,49 @@ export const resumeSchema = z.object({
   phone: z.string(),
   address: z.string(),
   pincode: z.string(),
-  portfolio: z.string().url(),
+  portfolio_or_linkedin_profile: z.string().url(),
 
   // profile
-  profile: z.string(),
+  profile: z.string()
+});
 
-  // skills
-  skills: z.array(z.string()).optional(),
-
-  // certifications
-  certifications: z
-    .array(
-      z.object({
-        title: z.string(),
-        authority: z.string(),
-        date: z.string(),
-        url: z.string().url()
-      })
-    )
-    .optional(),
-
-  // education
-  education: z
-    .array(
-      z.object({
-        institution: z.string(),
-        degree: z.string(),
-        field: z.string(),
-        start: z.string(),
-        end: z.string(),
-        score: z.string().optional()
-      })
-    )
-    .optional(),
-
-  // projects
-  projects: z
-    .array(
-      z.object({
-        title: z.string(),
-        description: z.string(),
-        features: z.array(z.string()),
-        start: z.string(),
-        end: z.string(),
-        liveUrl: z.string().url(),
-        repoUrl: z.string().url()
-      })
-    )
-    .optional(),
-
-  // experience
-  experience: z
-    .array(
-      z.object({
-        company: z.string(),
-        title: z.string(),
-        start: z.string(),
-        end: z.string(),
-        description: z.string()
-      })
-    )
+export const skillSchema = z.object({
+  name: z.string(),
+  proficiency: z
+    .enum(['beginner', 'intermediate', 'advanced', 'expert'])
     .optional()
+});
+
+export const certificationSchema = z.object({
+  title: z.string(),
+  issue_authority: z.string(),
+  issue_date: z.string(),
+  certificate_url: z.string().url()
+});
+
+export const educationSchema = z.object({
+  institution: z.string(),
+  degree: z.string(),
+  field_of_stydy: z.string(),
+  start_date: z.string(),
+  end_date: z.string(),
+  percentage_or_cgpa: z.string().optional()
+});
+
+export const projectSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  features: z.array(z.string()),
+  start_date: z.string(),
+  end_date: z.string(),
+  live_url: z.string().url(),
+  repo_url: z.string().url()
+});
+
+export const experienceSchema = z.object({
+  company: z.string(),
+  designation: z.string(),
+  start_date: z.string(),
+  end_date: z.string(),
+  description: z.string()
 });

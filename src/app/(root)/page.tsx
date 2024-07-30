@@ -1,8 +1,10 @@
-'use client';
+"use client";
 
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import generatePDF, { Resolution, Margin } from "react-to-pdf";
 
 import {
   Form,
@@ -10,424 +12,872 @@ import {
   FormField,
   FormItem,
   FormLabel
-} from '@/components/ui/form';
-import { resumeSchema } from '@/schemas';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/form";
+import {
+  resumeSchemaRequired,
+  skillSchema,
+  certificationSchema,
+  educationSchema,
+  projectSchema,
+  experienceSchema,
+  skillProficiency
+} from "@/schemas";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+
+const pdfOptions = {
+  resolution: Resolution.HIGH,
+  page: {
+    margin: Margin.SMALL,
+    format: "a4",
+    orientation: "portrait"
+  },
+  canvas: {
+    mimeType: "image/png",
+    quantityRatio: 1
+  },
+  overrides: {
+    pdf: {
+      compress: true
+    },
+    canvas: {
+      useCORS: true
+    }
+  }
+};
 
 export default function Home() {
-  const form = useForm<z.infer<typeof resumeSchema>>({
-    resolver: zodResolver(resumeSchema),
+  const resumeRequiredForm = useForm<z.infer<typeof resumeSchemaRequired>>({
+    resolver: zodResolver(resumeSchemaRequired),
     defaultValues: {
-      // header
-      name: '',
-      title: '',
-
-      // contact
-      email: '',
-      phone: '',
-      address: '',
-      portfolio: '',
-
-      // profile
-      profile: '',
-
-      // skills
-      skills: [''],
-
-      // certifications
-      certifications: [{ title: '', authority: '', date: '', url: '' }],
-
-      // education
-      education: [
-        { institution: '', degree: '', start: '', end: '', score: '' }
-      ],
-
-      // projects
-      projects: [
-        {
-          title: '',
-          description: '',
-          features: [''],
-          start: '',
-          end: '',
-          liveUrl: '',
-          repoUrl: ''
-        }
-      ],
-
-      // experience
-      experience: [
-        { title: '', company: '', start: '', end: '', description: '' }
-      ]
+      name: "",
+      title: "",
+      email: "",
+      phone: "",
+      address: "",
+      pincode: "",
+      portfolio_or_linkedin_profile: "",
+      profile: ""
     }
   });
 
-  const addMoreCretificate = () => {};
+  const skillForm = useForm<z.infer<typeof skillSchema>>({
+    resolver: zodResolver(skillSchema),
+    defaultValues: {
+      name: "",
+      proficiency: undefined
+    }
+  });
 
-  const addMoreEducation = () => {};
+  const certificationForm = useForm<z.infer<typeof certificationSchema>>({
+    resolver: zodResolver(certificationSchema),
+    defaultValues: {
+      title: "",
+      issue_authority: "",
+      issue_date: "",
+      certificate_url: ""
+    }
+  });
 
-  const addMoreProjects = () => {};
+  const educationForm = useForm<z.infer<typeof educationSchema>>({
+    resolver: zodResolver(educationSchema),
+    defaultValues: {
+      institution: "",
+      degree: "",
+      field_of_stydy: "",
+      start_date: "",
+      end_date: "",
+      percentage_or_cgpa: ""
+    }
+  });
 
-  const addMoreExperience = () => {};
+  const projectForm = useForm<z.infer<typeof projectSchema>>({
+    resolver: zodResolver(projectSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      features: [],
+      start_date: "",
+      end_date: "",
+      live_url: "",
+      repo_url: ""
+    }
+  });
+
+  const experienceForm = useForm<z.infer<typeof experienceSchema>>({
+    resolver: zodResolver(experienceSchema),
+    defaultValues: {
+      company: "",
+      designation: "",
+      start_date: "",
+      end_date: "",
+      description: ""
+    }
+  });
+
+  const [skills, setSkills] = useState<z.infer<typeof skillSchema>[]>([]);
+  const [skillModelOpen, setSkillModelOpen] = useState(false);
   return (
-    <main className="mt-10 grid grid-cols-2 gap-5 px-5 md:px-10">
+    <main className="grid grid-cols-2 gap-5 md:gap-10">
       {/* Resume Editor */}
-      <div className="flex max-h-[88vh] w-full flex-col overflow-y-scroll border-r pb-20">
-        <Form {...form}>
-          <form className="space-y-8">
-            {/* Personal Information */}
-            <div className="space-y-2 p-2">
-              <h1 className="text-2xl font-semibold uppercase">
-                Personal Information
+      <div className="flex h-[90vh] w-full flex-col gap-5 overflow-y-scroll px-5 md:px-10">
+        {/* Mandatory Fields */}
+        <Form {...resumeRequiredForm}>
+          <form className="space-y-6">
+            <div className="mb-10 flex justify-center gap-5">
+              <h1 className="flex w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3">
+                <div className="-rotate-90">H</div>
+                <div className="-rotate-90">E</div>
+                <div className="-rotate-90">A</div>
+                <div className="-rotate-90">D</div>
+                <div className="-rotate-90">E</div>
+                <div className="-rotate-90">R</div>
               </h1>
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Angel Saikia" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Title <span className="text-gray-400">(Optional)</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Full Stack Web Developer"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              <div className="flex flex-1 flex-col gap-5">
+                <FormField
+                  control={resumeRequiredForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Angel Saikia" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={resumeRequiredForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Full Stack Web Developer"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
-
-            {/* Contact Information */}
-            <div className="space-y-2 p-2">
-              <h1 className="text-2xl font-semibold uppercase">
-                Contact Information
+            <div className="flex justify-center gap-5">
+              <h1 className="flex w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3">
+                <div className="-rotate-90">C</div>
+                <div className="-rotate-90">O</div>
+                <div className="-rotate-90">N</div>
+                <div className="-rotate-90">T</div>
+                <div className="-rotate-90">A</div>
+                <div className="-rotate-90">C</div>
+                <div className="-rotate-90">T</div>
               </h1>
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="angelsaikia333@gmail.com"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="+91-8011158661" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Nagaon, Assam, India" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="pincode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pin Code</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="782003" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="portfolio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Portfolio/ LinkedIn</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="https://angelsaikia.com" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+              <div className="flex flex-1 flex-col gap-5">
+                <FormField
+                  control={resumeRequiredForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="developer@angelsaikia.com"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-            {/* About */}
-            <div className="space-y-2 p-2">
-              <h1 className="text-2xl font-semibold uppercase">About</h1>
-              <FormField
-                control={form.control}
-                name="profile"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder="A full stack web developer with 3 years of experience"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={resumeRequiredForm.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Nagaon, Assam, India" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <div className="flex gap-5">
+                  <FormField
+                    control={resumeRequiredForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="+91-8011158661" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={resumeRequiredForm.control}
+                    name="pincode"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Pincode</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="782003" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={resumeRequiredForm.control}
+                  name="portfolio_or_linkedin_profile"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Portfolio/ LinkedIn Profile</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="https://angelsaikia.com"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
-
-            {/* Skills */}
-            <div className="space-y-2 p-2">
-              <h1 className="text-2xl font-semibold uppercase">
-                Skills (Optional)
+            <div className="mb-10 flex justify-center gap-5">
+              <h1 className="flex w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3">
+                <div className="-rotate-90">D</div>
+                <div className="-rotate-90">E</div>
+                <div className="-rotate-90">S</div>
+                <div className="-rotate-90">C</div>
+                <div className="-rotate-90">R</div>
+                <div className="-rotate-90">I</div>
+                <div className="-rotate-90">P</div>
+                <div className="-rotate-90">T</div>
+                <div className="-rotate-90">I</div>
+                <div className="-rotate-90">O</div>
+                <div className="-rotate-90">N</div>
               </h1>
-              <FormField
-                control={form.control}
-                name="skills"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="React.js, Node.js, TypeScript, Next.js"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Certification */}
-            <div className="space-y-2 p-2">
-              <h1 className="text-2xl font-semibold uppercase">
-                Certification (Optional)
-              </h1>
-              <FormField
-                control={form.control}
-                name="certifications"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex flex-col gap-2">
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Title"
-                            value={field.value?.[0]?.title}
-                            className="w-2/3"
-                          />
-                          <Input
-                            placeholder="Issue Date"
-                            value={field.value?.[0]?.date}
-                            className="w-1/3"
-                          />
-                        </div>
-                        <Input
-                          placeholder="Authority"
-                          value={field.value?.[0]?.authority}
-                        />
-                        <Input
-                          placeholder="URL"
-                          value={field.value?.[0]?.url}
-                        />
-                      </div>
-                    </FormControl>
-                    <Button type="button" onClick={addMoreCretificate}>
-                      Add More
-                    </Button>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Education */}
-            <div className="space-y-2 p-2">
-              <h1 className="text-2xl font-semibold uppercase">
-                Education (Optional)
-              </h1>
-              <FormField
-                control={form.control}
-                name="education"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex flex-col gap-2">
-                        <Input
-                          placeholder="Institutuion"
-                          value={field.value?.[0]?.institution}
-                        />
-                        <Input
-                          placeholder="Degree"
-                          value={field.value?.[0]?.degree}
-                        />
-                        <Input
-                          placeholder="Field of Study"
-                          value={field.value?.[0]?.field}
-                        />
-
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Start Date"
-                            value={field.value?.[0]?.start}
-                          />
-                          <Input
-                            placeholder="End Date"
-                            value={field.value?.[0]?.end}
-                          />
-                        </div>
-                        <Input
-                          placeholder="Score (Optional)"
-                          value={field.value?.[0]?.score}
-                        />
-                      </div>
-                    </FormControl>
-                    <Button type="button" onClick={addMoreEducation}>
-                      Add More
-                    </Button>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Projects */}
-            <div className="space-y-2 p-2">
-              <h1 className="text-2xl font-semibold uppercase">
-                Projects (Optional)
-              </h1>
-              <FormField
-                control={form.control}
-                name="projects"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex flex-col gap-2">
-                        <Input
-                          placeholder="Title"
-                          value={field.value?.[0]?.title}
-                        />
+              <div className="flex flex-1 flex-col gap-5">
+                <FormField
+                  control={resumeRequiredForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
                         <Textarea
-                          placeholder="Description"
-                          value={field.value?.[0]?.description}
+                          {...field}
+                          placeholder="Full Stack Web Developer"
+                          className="h-full"
                         />
-
-                        <div className="flex flex-col gap-2">
-                          <h2 className="text-lg font-medium text-muted-foreground">
-                            Features
-                          </h2>
-                          <div className="flex gap-2">
-                            <Input
-                              placeholder="Features"
-                              value={field.value?.[0]?.features?.[0]}
-                            />
-                            <Button type="button" className="w-24">
-                              Add
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Start Date"
-                            value={field.value?.[0]?.start}
-                          />
-                          <Input
-                            placeholder="End Date"
-                            value={field.value?.[0]?.end}
-                          />
-                        </div>
-                        <Input
-                          placeholder="URL"
-                          value={field.value?.[0]?.liveUrl}
-                        />
-                        <Input
-                          placeholder="Repository URL"
-                          value={field.value?.[0]?.repoUrl}
-                        />
-                      </div>
-                    </FormControl>
-                    <Button type="button" onClick={addMoreProjects}>
-                      Add More
-                    </Button>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Experience */}
-            <div className="space-y-2 p-2">
-              <h1 className="text-2xl font-semibold uppercase">
-                Experience (Optional)
-              </h1>
-              <FormField
-                control={form.control}
-                name="experience"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex flex-col gap-2">
-                        <Input
-                          placeholder="Conpany Name"
-                          value={field.value?.[0]?.company}
-                        />
-                        <Input
-                          placeholder="Designation"
-                          value={field.value?.[0]?.title}
-                        />
-
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Start Date"
-                            value={field.value?.[0]?.start}
-                          />
-                          <Input
-                            placeholder="End Date"
-                            value={field.value?.[0]?.end}
-                          />
-                        </div>
-
-                        <Textarea
-                          placeholder="Description"
-                          value={field.value?.[0]?.description}
-                        />
-                      </div>
-                    </FormControl>
-                    <Button type="button" onClick={addMoreExperience}>
-                      Add More
-                    </Button>
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
           </form>
         </Form>
+
+        <div className="flex flex-wrap justify-between gap-5">
+          {/* Skills */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Add Skill</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <div className="flex h-full w-full flex-col">
+                <h1 className="mb-10 text-center text-xl font-semibold">
+                  Add Skill
+                </h1>
+                <Form {...skillForm}>
+                  <form className="flex gap-5 space-y-2">
+                    <FormField
+                      control={skillForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem className="w-[200px] flex-1">
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="React" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={skillForm.control}
+                      name="proficiency"
+                      render={({ field }) => (
+                        <FormItem className="flex w-[200px] flex-col">
+                          <FormLabel>Proficiency</FormLabel>
+
+                          <Popover
+                            open={skillModelOpen}
+                            onOpenChange={setSkillModelOpen}
+                          >
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  aria-expanded={skillModelOpen}
+                                  className={cn(
+                                    "w-full justify-between",
+                                    !field.value && "text-neutral-400"
+                                  )}
+                                >
+                                  {field.value
+                                    ? field.value
+                                    : "Select proficiency"}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0">
+                              <Command>
+                                <CommandInput placeholder="Search proficiency..."></CommandInput>
+
+                                <CommandList>
+                                  <CommandEmpty>
+                                    No proficiency found
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    <CommandItem
+                                      value={skillProficiency.beginner}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Beginner
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.intermediate}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Intermediate
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.advanced}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Advanced
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.expert}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Expert
+                                    </CommandItem>
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </Form>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Certification */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Add Certificate</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <div className="flex h-full w-full flex-col">
+                <h1 className="mb-10 text-center text-xl font-semibold">
+                  Add Skill
+                </h1>
+                <Form {...skillForm}>
+                  <form className="flex gap-5 space-y-2">
+                    <FormField
+                      control={skillForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem className="w-[200px] flex-1">
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="React" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={skillForm.control}
+                      name="proficiency"
+                      render={({ field }) => (
+                        <FormItem className="flex w-[200px] flex-col">
+                          <FormLabel>Proficiency</FormLabel>
+
+                          <Popover
+                            open={skillModelOpen}
+                            onOpenChange={setSkillModelOpen}
+                          >
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  aria-expanded={skillModelOpen}
+                                  className={cn(
+                                    "w-full justify-between",
+                                    !field.value && "text-neutral-400"
+                                  )}
+                                >
+                                  {field.value
+                                    ? field.value
+                                    : "Select proficiency"}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0">
+                              <Command>
+                                <CommandInput placeholder="Search proficiency..."></CommandInput>
+
+                                <CommandList>
+                                  <CommandEmpty>
+                                    No proficiency found
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    <CommandItem
+                                      value={skillProficiency.beginner}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Beginner
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.intermediate}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Intermediate
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.advanced}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Advanced
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.expert}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Expert
+                                    </CommandItem>
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </Form>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Education */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Add Education</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <div className="flex h-full w-full flex-col">
+                <h1 className="mb-10 text-center text-xl font-semibold">
+                  Add Skill
+                </h1>
+                <Form {...skillForm}>
+                  <form className="flex gap-5 space-y-2">
+                    <FormField
+                      control={skillForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem className="w-[200px] flex-1">
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="React" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={skillForm.control}
+                      name="proficiency"
+                      render={({ field }) => (
+                        <FormItem className="flex w-[200px] flex-col">
+                          <FormLabel>Proficiency</FormLabel>
+
+                          <Popover
+                            open={skillModelOpen}
+                            onOpenChange={setSkillModelOpen}
+                          >
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  aria-expanded={skillModelOpen}
+                                  className={cn(
+                                    "w-full justify-between",
+                                    !field.value && "text-neutral-400"
+                                  )}
+                                >
+                                  {field.value
+                                    ? field.value
+                                    : "Select proficiency"}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0">
+                              <Command>
+                                <CommandInput placeholder="Search proficiency..."></CommandInput>
+
+                                <CommandList>
+                                  <CommandEmpty>
+                                    No proficiency found
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    <CommandItem
+                                      value={skillProficiency.beginner}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Beginner
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.intermediate}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Intermediate
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.advanced}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Advanced
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.expert}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Expert
+                                    </CommandItem>
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </Form>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Project */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Add Project</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <div className="flex h-full w-full flex-col">
+                <h1 className="mb-10 text-center text-xl font-semibold">
+                  Add Skill
+                </h1>
+                <Form {...skillForm}>
+                  <form className="flex gap-5 space-y-2">
+                    <FormField
+                      control={skillForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem className="w-[200px] flex-1">
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="React" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={skillForm.control}
+                      name="proficiency"
+                      render={({ field }) => (
+                        <FormItem className="flex w-[200px] flex-col">
+                          <FormLabel>Proficiency</FormLabel>
+
+                          <Popover
+                            open={skillModelOpen}
+                            onOpenChange={setSkillModelOpen}
+                          >
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  aria-expanded={skillModelOpen}
+                                  className={cn(
+                                    "w-full justify-between",
+                                    !field.value && "text-neutral-400"
+                                  )}
+                                >
+                                  {field.value
+                                    ? field.value
+                                    : "Select proficiency"}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0">
+                              <Command>
+                                <CommandInput placeholder="Search proficiency..."></CommandInput>
+
+                                <CommandList>
+                                  <CommandEmpty>
+                                    No proficiency found
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    <CommandItem
+                                      value={skillProficiency.beginner}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Beginner
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.intermediate}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Intermediate
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.advanced}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Advanced
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.expert}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Expert
+                                    </CommandItem>
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </Form>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Experience */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Add Experience</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <div className="flex h-full w-full flex-col">
+                <h1 className="mb-10 text-center text-xl font-semibold">
+                  Add Skill
+                </h1>
+                <Form {...skillForm}>
+                  <form className="flex gap-5 space-y-2">
+                    <FormField
+                      control={skillForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem className="w-[200px] flex-1">
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="React" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={skillForm.control}
+                      name="proficiency"
+                      render={({ field }) => (
+                        <FormItem className="flex w-[200px] flex-col">
+                          <FormLabel>Proficiency</FormLabel>
+
+                          <Popover
+                            open={skillModelOpen}
+                            onOpenChange={setSkillModelOpen}
+                          >
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  aria-expanded={skillModelOpen}
+                                  className={cn(
+                                    "w-full justify-between",
+                                    !field.value && "text-neutral-400"
+                                  )}
+                                >
+                                  {field.value
+                                    ? field.value
+                                    : "Select proficiency"}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0">
+                              <Command>
+                                <CommandInput placeholder="Search proficiency..."></CommandInput>
+
+                                <CommandList>
+                                  <CommandEmpty>
+                                    No proficiency found
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    <CommandItem
+                                      value={skillProficiency.beginner}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Beginner
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.intermediate}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Intermediate
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.advanced}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Advanced
+                                    </CommandItem>
+                                    <CommandItem
+                                      value={skillProficiency.expert}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue);
+                                        setSkillModelOpen(false);
+                                      }}
+                                    >
+                                      Expert
+                                    </CommandItem>
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </Form>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
       {/* Resume Preview */}
-      <div className="h-20 w-full bg-red-500"></div>
+      <div className="px-5 md:px-10">
+        <div className="aspect-[1.41/1] border" id="resume-preview">
+          <div className="grid h-full w-full grid-cols-3">
+            <div className="col-span-1 h-full bg-blue-500"></div>
+            <div className="col-span-2 h-full bg-red-500">
+              <div className="flex h-[50%] w-full flex-col justify-center bg-slate-100 px-20">
+                <h1 className="text-4xl font-semibold uppercase">
+                  {resumeRequiredForm.getValues("name").split(" ")[0]}
+                </h1>
+                <h3 className="text-lg font-medium italic">
+                  Full Stack Web Developer
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
