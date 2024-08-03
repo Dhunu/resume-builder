@@ -34,7 +34,7 @@ export default function Home() {
   });
 
   return (
-    <main className="flex flex-col gap-5 bg-slate-100 pb-10 pt-10 md:gap-10 2xl:flex-row">
+    <main className="flex flex-col gap-5 bg-slate-100 pt-10 md:gap-10 2xl:flex-row">
       {/* Resume Editor */}
       <div className="flex w-full flex-col gap-5 px-5 md:px-10">
         {/* Mandatory Fields */}

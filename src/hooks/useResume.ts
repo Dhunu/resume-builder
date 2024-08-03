@@ -48,8 +48,8 @@ type Project = {
   name: string;
   features: string[];
   technologies: string[];
-  live_link: string;
-  repo_link: string;
+  live_link?: string;
+  repo_link?: string;
 };
 
 type Education = {

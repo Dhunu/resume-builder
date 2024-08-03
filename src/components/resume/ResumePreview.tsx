@@ -19,7 +19,7 @@ export default function ResumePreview() {
   } = useResume();
   return (
     <div
-      className="mx-auto grid aspect-[1/1.41451613] h-[1200px] shrink-0 grid-cols-3 shadow-lg 2xl:mr-10"
+      className="mx-auto mb-5 grid aspect-[1/1.41451613] h-[1200px] shrink-0 grid-cols-3 shadow-lg 2xl:mr-10"
       id="resume-preview"
       ref={resumeRef}
     >

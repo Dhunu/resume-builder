@@ -48,7 +48,7 @@ export default function Skills() {
         <div className="-rotate-90">L</div>
         <div className="-rotate-90">S</div>
       </h1>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col">
         <div className="flex flex-wrap gap-5">
           {skills.map((skill, index) => (
             <div className="flex items-center gap-2" key={index}>
@@ -88,7 +88,9 @@ export default function Skills() {
             </div>
           ))}
         </div>
-        <AddSkill />
+        <div className="mt-5">
+          <AddSkill />
+        </div>
       </div>
     </div>
   );
@@ -108,7 +110,9 @@ const AddSkill = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Add Skill</Button>
+        <Button>
+          {skills.length === 0 ? "Add Skill" : "Add Another Skill"}
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <div className="flex h-full w-full flex-col gap-5">

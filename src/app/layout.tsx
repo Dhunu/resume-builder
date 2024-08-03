@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import { Toaster } from "react-hot-toast";
+
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -24,10 +26,11 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "font-roboto min-h-screen antialiased",
+          "min-h-screen font-roboto antialiased",
           fontRoboto.variable
         )}
       >
+        <Toaster />
         {children}
       </body>
     </html>

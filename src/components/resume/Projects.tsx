@@ -1,8 +1,11 @@
 "use client";
 
-import { Label } from "@radix-ui/react-label";
 import { useState } from "react";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdEditDocument } from "react-icons/md";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { TagsInput } from "react-tag-input-component";
 
 import useResume from "@/hooks/useResume";
 import {
@@ -12,17 +15,35 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTrigger
-} from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { projectSchema } from "@/schema";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel
+} from "@/components/ui/form";
+import toast from "react-hot-toast";
+import Link from "next/link";
 
 export default function Projects() {
   const { projects, setProjects } = useResume();
 
   if (projects.length === 0) return <AddProject />;
 
+  const deleteProject = (id: number) => {
+    const newProjects = projects.filter((project) => project.id !== id);
+    setProjects(newProjects);
+    const resume_data = JSON.parse(localStorage.getItem("resume_data") || "{}");
+    resume_data.projects = newProjects;
+    localStorage.setItem("resume_data", JSON.stringify(resume_data));
+  };
+
   return (
-    <div className="mb-10 flex justify-center gap-5">
+    <div className="flex w-full justify-center gap-5">
       <h1 className="flex w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3">
         <div className="-rotate-90">P</div>
         <div className="-rotate-90">R</div>
@@ -33,47 +54,123 @@ export default function Projects() {
         <div className="-rotate-90">T</div>
         <div className="-rotate-90">S</div>
       </h1>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-1 flex-col">
         <div className="flex flex-wrap gap-5">
-          {projects.map((skill, index) => (
-            <div className="flex items-center gap-2" key={index}>
-              <div className="left-3 flex items-center gap-2 rounded-lg border bg-neutral-50 p-2 text-base">
-                <span className="font-semibold">{skill.name}</span>
-                <span>-</span>
-                <span>{skill.proficiency}</span>
-              </div>
+          {projects.map((project, index) => (
+            <div
+              className="flex w-full justify-start gap-3 rounded-lg border bg-neutral-50 px-4 py-2 text-base"
+              key={project.id}
+            >
+              <div className="flex flex-1 flex-col gap-3">
+                <div className="flex w-full justify-between">
+                  <h2 className="text-lg font-medium">{project.name}</h2>
+                  <div className="flex gap-5">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <MdEditDocument className="h-5 w-5 cursor-pointer" />
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader className="flex flex-row">
+                          Are you sure you want to delete
+                          <span className="mx-1 font-semibold">
+                            {project.name}
+                          </span>{" "}
+                          ?
+                        </DialogHeader>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button>Cancel</Button>
+                          </DialogClose>
+                          <DialogClose asChild>
+                            <Button
+                              variant="destructive"
+                              onClick={() => deleteProject(project.id)}
+                            >
+                              Delete
+                            </Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <MdDelete className="h-5 w-5 cursor-pointer" />
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader className="flex flex-row">
+                          Are you sure you want to delete
+                          <span className="mx-1 font-semibold">
+                            {project.name}
+                          </span>{" "}
+                          ?
+                        </DialogHeader>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button>Cancel</Button>
+                          </DialogClose>
+                          <DialogClose asChild>
+                            <Button
+                              variant="destructive"
+                              onClick={() => deleteProject(project.id)}
+                            >
+                              Delete
+                            </Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-base font-normal">Features:</h3>
+                  <ul className="flex list-disc flex-col gap-1 pl-5">
+                    {project.features.map((feature, index) => (
+                      <li className="text-sm font-light" key={feature}>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-base font-normal">Technologies Used:</h3>
+                  <ul className="flex list-disc flex-col gap-1 pl-5">
+                    {project.technologies.map((technology, index) => (
+                      <li className="text-sm font-light" key={technology}>
+                        {technology}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {project.live_link && (
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-normal">Live Link:</h3>
+                    <Link
+                      href={project.live_link}
+                      className="text-sm underline"
+                    >
+                      {project.live_link}
+                    </Link>
+                  </div>
+                )}
 
-              <Dialog>
-                <DialogTrigger>
-                  <MdDelete className="h-5 w-5 cursor-pointer" />
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader className="flex flex-row">
-                    Are you sure you want to delete
-                    <span className="mx-1 font-semibold">
-                      {skill.name}
-                    </span>{" "}
-                    skill?
-                  </DialogHeader>
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button>Cancel</Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                      <Button
-                        variant="destructive"
-                        onClick={() => deleteSkill(skill.id)}
-                      >
-                        Delete
-                      </Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                {project.repo_link && (
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-normal">Repository Link:</h3>
+                    <Link
+                      href={project.repo_link}
+                      className="text-sm underline"
+                    >
+                      {project.repo_link}
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
-        <AddProject />
+        <div className="mt-5">
+          <AddProject />
+        </div>
       </div>
     </div>
   );
@@ -82,111 +179,143 @@ export default function Projects() {
 const AddProject = () => {
   const { projects, setProjects } = useResume();
 
-  const [feature, setFeature] = useState<string>("");
-  const [technology, setTechnology] = useState<string>("");
+  const form = useForm<z.infer<typeof projectSchema>>({
+    resolver: zodResolver(projectSchema),
+    defaultValues: {
+      id: projects.length + 1,
+      name: "",
+      features: [],
+      technologies: [],
+      live_link: "",
+      repo_link: ""
+    }
+  });
 
   const [open, setOpen] = useState(false);
-  const [project, setProject] = useState<{
-    name: string;
-    features: string[];
-    technologies: string[];
-    live_link: string;
-    repo_link: string;
-  }>({
-    name: "",
-    features: [],
-    technologies: [],
-    live_link: "",
-    repo_link: ""
-  });
+
+  const onSubmit = (data: z.infer<typeof projectSchema>) => {
+    setProjects([...projects, data]);
+    const resume_data = JSON.parse(localStorage.getItem("resume_data") || "{}");
+    resume_data.projects = [...projects, data];
+    localStorage.setItem("resume_data", JSON.stringify(resume_data));
+    setOpen(false);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild>
-        <Button>Add Project</Button>
+        <Button>
+          {projects.length === 0 ? "Add Project" : "Add Another Project"}
+        </Button>
       </DialogTrigger>
       <DialogContent>
-        <div className="flex h-full w-full flex-col gap-5">
-          <h1 className="mb-10 text-center text-xl font-semibold">
-            Add Project
-          </h1>
-
-          <div className="flex flex-col gap-5">
-            <div className="w-full">
-              <Label>Name</Label>
-              <Input
-                placeholder="React"
-                onChange={(e) =>
-                  setProject({ ...project, name: e.target.value })
-                }
-              />
-            </div>
-            <div className="w-full">
-              <Label>Features</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Added authentication with JWT tokens."
-                  value={feature}
-                  onChange={(e) => setFeature(e.target.value)}
-                />
-                <Button
-                  onClick={() =>
-                    setProject({
-                      ...project,
-                      features: [...project.features, feature]
-                    })
-                  }
-                >
-                  Add
-                </Button>
-              </div>
-              <div className="mt-2 flex flex-col text-sm">
-                {project.features.map((feature, index) => (
-                  <div className="flex justify-between gap-2" key={index}>
-                    <div className="flex flex-wrap gap-1">
-                      <span>{index + 1}.</span>
-                      <span>{feature}</span>
-                    </div>
-                    <MdDelete
-                      className="h-5 w-5 cursor-pointer"
-                      onClick={() => {
-                        const newFeatures = project.features.filter(
-                          (item) => item !== feature
-                        );
-                        setProject({ ...project, features: newFeatures });
+        <h2 className="w-full text-center text-2xl font-semibold">
+          Project Details
+        </h2>
+        <Form {...form}>
+          <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Blogify" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="features"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Features</FormLabel>
+                  <FormControl>
+                    <TagsInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      name="features"
+                      placeHolder="Dark Mode, PWA, SSR"
+                      onExisting={(technology) => technology}
+                      beforeAddValidate={(technology, existingTechnologies) => {
+                        if (existingTechnologies.includes(technology)) {
+                          toast.error("Feature already exists");
+                          return false;
+                        }
+                        toast.success("Feature added");
+                        return true;
                       }}
                     />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="mx-auto flex gap-5">
-            <DialogClose asChild>
-              <Button variant="destructive" className="w-20">
-                Cancel
-              </Button>
-            </DialogClose>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-            <DialogClose asChild>
-              <Button
-                className="w-20"
-                onClick={() => {
-                  setProjects([
-                    ...projects,
-                    {
-                      id: projects.length + 1,
-                      ...project
-                    }
-                  ]);
-                  setOpen(false);
-                }}
-              >
-                Save
-              </Button>
-            </DialogClose>
-          </div>
-        </div>
+            <FormField
+              control={form.control}
+              name="technologies"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Technologies</FormLabel>
+                  <FormControl>
+                    <TagsInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      name="technologies"
+                      placeHolder="React.js, Next.js, TailwindCSS"
+                      onExisting={(technology) => technology}
+                      beforeAddValidate={(technology, existingTechnologies) => {
+                        if (existingTechnologies.includes(technology)) {
+                          toast.error("Technology already exists");
+                          return false;
+                        }
+                        toast.success("Technology added");
+                        return true;
+                      }}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="live_link"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Live Link</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="https://blogify.angelsaikia.com"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="repo_link"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Repository Link</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="https://github.com/blogify"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full" size="sm">
+              Add Project
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
+      <DialogFooter></DialogFooter>
     </Dialog>
   );
 };
