@@ -26,6 +26,7 @@ interface ResumeStore {
 
 type Header = {
   name: string;
+  photo: string;
   title: string;
 };
 
@@ -84,21 +85,125 @@ const ref =
 const useResume = create<ResumeStore>()((set) => ({
   resumeRef: ref,
   header: {
-    name: "",
-    title: ""
+    photo:
+      "https://firebasestorage.googleapis.com/v0/b/resume-builder-54cdd.appspot.com/o/images%2F1722751965098IMG%204019-01%203.jpg?alt=media&token=5eb03946-dca5-4108-8c80-f8d35c2b89c0",
+    name: "Angel Saikia",
+    title: "Full Stack Web Developer"
   },
   contact: {
-    email: "",
-    phone: "",
-    location: "",
-    website: "",
-    linkedIn: ""
+    email: "developer@angelsaikia.com",
+    phone: "+91-8011158661",
+    location: "Nagaon, Assam, India",
+    website: "https://angelsaikia.com",
+    linkedIn: "https://www.linkedin.com/in/angel-saikia/"
   },
-  summary: "",
-  skills: [],
-  projects: [],
-  education: [],
-  certifications: [],
+  summary:
+    "I am a Full Stack Web Developer with 3 years of experience in building web applications. I specialize in JavaScript and have worked with React, Node.js, and Express.js. I am passionate about learning new technologies and building scalable applications. I am looking for opportunities to work on challenging projects and grow as a developer.",
+  skills: [
+    {
+      id: 1,
+      name: "JavaScript",
+      proficiency: "advanced"
+    },
+    {
+      id: 2,
+      name: "React",
+      proficiency: "advanced"
+    },
+    {
+      id: 3,
+      name: "Node.js",
+      proficiency: "advanced"
+    },
+    {
+      id: 4,
+      name: "Next.js",
+      proficiency: "intermediate"
+    },
+    {
+      id: 5,
+      name: "Express.js",
+      proficiency: "advanced"
+    },
+    {
+      id: 6,
+      name: "MongoDB",
+      proficiency: "intermediate"
+    },
+    {
+      id: 7,
+      name: "Firebase",
+      proficiency: "intermediate"
+    }
+  ],
+  projects: [
+    {
+      id: 1,
+      name: "Blogify",
+      features: [
+        "User authentication",
+        "Create, update, and delete posts",
+        "Like and comment on posts"
+      ],
+      technologies: ["React", "Node.js", "Express.js", "MongoDB"],
+      live_link: "https://blogify.vercel.app",
+      repo_link: "https://github.com/Dhunu/blogify"
+    },
+    {
+      id: 2,
+      name: "Safar Sathi",
+      features: [
+        "Search for goods",
+        "Track orders in realtime",
+        "Get notifications for order status"
+      ],
+      technologies: ["React", "Node.js", "Express.js", "MongoDB"],
+      live_link: "https://safar-sathi.vercel.app",
+      repo_link: "https://github.com/Dhunu/safar-sathi"
+    }
+  ],
+  education: [
+    {
+      id: 1,
+      degree: "Bachelor of Science",
+      start_date: "2022",
+      end_date: "2025",
+      field_of_study: "Data Science and Applications",
+      institution: "Indian Institute of Information Technology, Madras"
+    },
+    {
+      id: 2,
+      degree: "Full Stack Web Development",
+      start_date: "2022",
+      end_date: "2023",
+      field_of_study: "Java Backend Development",
+      institution: "Masai School"
+    },
+    {
+      id: 3,
+      degree: "Higher Secondary School",
+      start_date: "2014",
+      end_date: "2016",
+      field_of_study: "Science",
+      institution: "Ramanujan Junior College"
+    }
+  ],
+  certifications: [
+    {
+      id: 1,
+      issue_date: "2019",
+      issued_by: "Coursera",
+      link: "https://www.coursera.org/account/accomplishments/certificate/9J5Z7ZQ7T4JU",
+      name: "What is Data Science?"
+    },
+    {
+      id: 2,
+      issue_date: "2020",
+      issued_by: "Coursera",
+      link: "https://www.coursera.org/account/accomplishments/certificate/9J5Z7ZQ7T4JU",
+      name: "Tools of Data Science"
+    }
+  ],
   experience: [],
   setHeader: (data: Header) => set({ header: data }),
   setContact: (data: Contact) => set({ contact: data }),
@@ -111,6 +216,7 @@ const useResume = create<ResumeStore>()((set) => ({
   resetResume: () => {
     set({
       header: {
+        photo: "",
         name: "",
         title: ""
       },

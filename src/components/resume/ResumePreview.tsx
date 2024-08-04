@@ -1,8 +1,15 @@
 import useResume from "@/hooks/useResume";
+import { Link2Icon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { FaGlobe, FaLocationDot, FaPhone, FaStar } from "react-icons/fa6";
+import {
+  FaGithub,
+  FaGlobe,
+  FaLocationDot,
+  FaPhone,
+  FaStar
+} from "react-icons/fa6";
 import { MdAlternateEmail } from "react-icons/md";
 
 export default function ResumePreview() {
@@ -27,7 +34,7 @@ export default function ResumePreview() {
         {/* Image */}
         <div className="flex h-[23%] items-center justify-center">
           <Image
-            src="/images/img.jpg"
+            src={header.photo}
             alt="profile_img"
             width={200}
             height={200}
@@ -107,6 +114,35 @@ export default function ResumePreview() {
               </ul>
             </div>
           )}
+
+          {/* Certifications */}
+          {certifications.length > 0 && (
+            <div className="mt-10 w-full">
+              <h2 className="font-lato text-[20px] font-extrabold uppercase leading-[28px] tracking-widest">
+                CERTIFICATIONS
+              </h2>
+              <div className="mt-1 h-0.5 w-full bg-white" />
+
+              <ul className="mt-5 flex list-disc flex-col gap-5">
+                {certifications.map((certificate, index) => (
+                  <li key={index} className="flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <Link
+                        href={certificate.link}
+                        className="text-sm underline"
+                      >
+                        {certificate.name}
+                      </Link>
+                      <p className="text-xs">{certificate.issue_date}</p>
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      {certificate.issued_by}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
       <div className="col-span-2 h-full w-full bg-white">
@@ -142,14 +178,82 @@ export default function ResumePreview() {
         </div>
 
         {/* Projects */}
-        {
-          <div className="mx-8 mt-10">
-            <h2 className="font-lato text-[20px] font-extrabold uppercase leading-[28px] tracking-widest text-[#163853]">
-              PROJECTS
-            </h2>
-            <div className="mt-1 h-[2px] w-full bg-[#163853]" />
+
+        <div className="mx-8 mt-10">
+          <h2 className="font-lato text-[20px] font-extrabold uppercase leading-[28px] tracking-widest text-[#163853]">
+            PROJECTS
+          </h2>
+          <div className="mt-1 h-[2px] w-full bg-[#163853]" />
+          <div className="mt-5 flex w-full flex-col gap-5">
+            {projects.map((project, index) => (
+              <div key={index} className="flex flex-col gap-2">
+                <div className="flex justify-between">
+                  <h3 className="text-lg font-medium text-[#163853]">
+                    {project.name}
+                  </h3>
+                  <div className="flex gap-5">
+                    {project.live_link && (
+                      <Link href={project.live_link}>
+                        <Link2Icon className="h-4 w-4" />
+                      </Link>
+                    )}
+                    {project.repo_link && (
+                      <Link href={project.repo_link}>
+                        <FaGithub className="h-4 w-4" />
+                      </Link>
+                    )}
+                  </div>
+                </div>
+                <ul className="flex flex-col gap-2">
+                  {project.features.map((feature, index) => (
+                    <li key={index} className="flex gap-2">
+                      <span className="text-[13px] text-slate-500">-</span>
+                      <span className="text-[13px] text-slate-500">
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <ul className="flex gap-5">
+                  {project.technologies.map((technology, index) => (
+                    <li
+                      key={index}
+                      className="rounded-full border border-[#163853] px-1.5 py-0.5 text-[13px] font-medium text-[#163853]"
+                    >
+                      {technology}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-        }
+        </div>
+
+        {/* Education */}
+        <div className="mx-8 mt-10">
+          <h2 className="font-lato text-[20px] font-extrabold uppercase leading-[28px] tracking-widest text-[#163853]">
+            EDUCATION
+          </h2>
+          <div className="mt-1 h-[2px] w-full bg-[#163853]" />
+          <div className="mt-5 flex w-full flex-col gap-5">
+            {education.map((edu, index) => (
+              <div key={index} className="flex flex-col gap-1">
+                <h3 className="text-lg font-medium text-[#163853]">
+                  {edu.degree}{" "}
+                  <span className="text-sm font-normal">
+                    in {edu.field_of_study}
+                  </span>
+                </h3>
+                <div className="text-xs text-slate-500">{edu.institution}</div>
+                <div className="flex text-xs font-light text-slate-500">
+                  <span>{edu.start_date}</span>
+                  <span className="mx-1">-</span>
+                  <span>{edu.end_date}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

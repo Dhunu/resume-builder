@@ -28,11 +28,12 @@ import {
 } from "@/components/ui/form";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import UploadPhoto from "./UploadPhoto";
+import Image from "next/image";
+import { FaTrash } from "react-icons/fa6";
 
 export default function Projects() {
   const { projects, setProjects } = useResume();
-
-  if (projects.length === 0) return <AddProject />;
 
   const deleteProject = (id: number) => {
     const newProjects = projects.filter((project) => project.id !== id);
@@ -176,13 +177,14 @@ export default function Projects() {
   );
 }
 
-const AddProject = () => {
+export const AddProject = () => {
   const { projects, setProjects } = useResume();
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       id: projects.length + 1,
+      imageUrl: "",
       name: "",
       features: [],
       technologies: [],
@@ -194,6 +196,7 @@ const AddProject = () => {
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data: z.infer<typeof projectSchema>) => {
+    console.log(data);
     setProjects([...projects, data]);
     const resume_data = JSON.parse(localStorage.getItem("resume_data") || "{}");
     resume_data.projects = [...projects, data];
@@ -204,16 +207,57 @@ const AddProject = () => {
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild>
-        <Button>
+        <Button
+          className="w-full justify-start font-medium"
+          size="sm"
+          variant="ghost"
+        >
           {projects.length === 0 ? "Add Project" : "Add Another Project"}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="h-full max-h-[80vh] overflow-y-scroll py-10">
         <h2 className="w-full text-center text-2xl font-semibold">
           Project Details
         </h2>
         <Form {...form}>
           <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex justify-between">
+                    <FormLabel>Image URL</FormLabel>
+
+                    {field.value && (
+                      <FaTrash
+                        className="h-4 w-4 cursor-pointer"
+                        onClick={() =>
+                          field.onChange({ target: { value: "" } })
+                        }
+                      />
+                    )}
+                  </div>
+                  <FormControl>
+                    {!field.value ? (
+                      <UploadPhoto
+                        setValue={(value) =>
+                          field.onChange({ target: { value } })
+                        }
+                      />
+                    ) : (
+                      <Image
+                        src={field.value}
+                        width={400}
+                        height={200}
+                        alt="photo"
+                        className="mx-auto w-full object-contain"
+                      />
+                    )}
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="name"

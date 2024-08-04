@@ -1,6 +1,9 @@
 import useResume from "@/hooks/useResume";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import UploadPhoto from "./UploadPhoto";
+import Image from "next/image";
+import { Button } from "../ui/button";
 
 export default function ResumeHeader() {
   const { header, setHeader } = useResume();
@@ -16,6 +19,21 @@ export default function ResumeHeader() {
         <div className="-rotate-90">R</div>
       </h1>
       <div className="flex flex-1 flex-col gap-5">
+        <div className="w-full">
+          <Label>Photo</Label>
+          {!header.photo ? (
+            <UploadPhoto
+              setValue={(value) => setHeader({ ...header, photo: value })}
+            />
+          ) : (
+            <div className="flex gap-5">
+              <Image src={header.photo} width={100} height={100} alt="photo" />
+              <Button onClick={() => setHeader({ ...header, photo: "" })}>
+                Remove
+              </Button>
+            </div>
+          )}
+        </div>
         <div className="w-full">
           <Label>Name</Label>
           <Input

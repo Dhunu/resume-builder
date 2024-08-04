@@ -1,9 +1,21 @@
 "use client";
 
 import { useReactToPrint } from "react-to-print";
-import { Button } from "./ui/button";
-import useResume from "@/hooks/useResume";
 import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import useResume from "@/hooks/useResume";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { AddSkill } from "./resume/Skills";
+import { AddProject } from "./resume/Projects";
+import useDropdownMenu from "@/hooks/useDropdownMenu";
 
 export default function Header() {
   const [saved, setSaved] = useState(false);
@@ -19,6 +31,8 @@ export default function Header() {
     experience,
     resetResume
   } = useResume();
+
+  const { open, setOpen } = useDropdownMenu();
 
   const saveToLocalStorage = () => {
     const data = {
@@ -38,7 +52,7 @@ export default function Header() {
   const handlePrint = useReactToPrint({
     content: () => resumeRef.current,
     documentTitle: header.name
-      ? header.name.split(" ").join("_") + "_Resume"
+      ? `${header.name.split(" ").join("_")}_Resume`
       : "Resume",
     removeAfterPrint: true
   });
@@ -54,6 +68,36 @@ export default function Header() {
         Resume-Builder
       </h1>
       <div className="flex gap-5">
+        <DropdownMenu open={open} onOpenChange={() => setOpen(!open)}>
+          <DropdownMenuTrigger asChild>
+            <Button>Add Section</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="flex w-full flex-col gap-1">
+            <DropdownMenuLabel className="text-center">
+              Sections
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <AddSkill />
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <AddProject />
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log("Add Education")}>
+              Education
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log("Add Certifications")}>
+              Certifications
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log("Add Experience")}>
+              Experience
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => console.log("Add Custom")}>
+              Custom
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button onClick={handleReset}>Reset</Button>
         <Button onClick={saveToLocalStorage}>Save</Button>
         <Button

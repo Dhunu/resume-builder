@@ -25,11 +25,10 @@ import {
   CommandGroup,
   CommandItem
 } from "@/components/ui/command";
+import useDropdownMenu from "@/hooks/useDropdownMenu";
 
 export default function Skills() {
   const { skills, setSkills } = useResume();
-
-  if (skills.length === 0) return <AddSkill />;
 
   const deleteSkill = (id: number) => {
     const newSkills = skills.filter((skill) => skill.id !== id);
@@ -96,10 +95,11 @@ export default function Skills() {
   );
 }
 
-const AddSkill = () => {
+export const AddSkill = () => {
   const { skills, setSkills } = useResume();
+  const { open, setOpen } = useDropdownMenu();
 
-  const [open, setOpen] = useState(false);
+  const [openProficiency, setOpenProficiency] = useState(false);
   const [skill, setSkill] = useState<{
     name: string;
     proficiency: string | undefined;
@@ -110,11 +110,19 @@ const AddSkill = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>
+        <Button
+          className="w-full justify-start font-medium"
+          size="sm"
+          variant="ghost"
+        >
           {skills.length === 0 ? "Add Skill" : "Add Another Skill"}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
         <div className="flex h-full w-full flex-col gap-5">
           <h1 className="mb-10 text-center text-xl font-semibold">Add Skill</h1>
 
@@ -128,12 +136,12 @@ const AddSkill = () => {
             </div>
             <div className="w-full">
               <Label>Proficiency</Label>
-              <Popover open={open} onOpenChange={setOpen}>
+              <Popover open={openProficiency} onOpenChange={setOpenProficiency}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     role="combobox"
-                    aria-expanded={open}
+                    aria-expanded={openProficiency}
                     className={cn(
                       "w-full justify-between",
                       !skill?.proficiency && "text-neutral-400"
@@ -155,7 +163,7 @@ const AddSkill = () => {
                           value="beginner"
                           onSelect={(currentValue) => {
                             setSkill({ ...skill, proficiency: currentValue });
-                            setOpen(false);
+                            setOpenProficiency(false);
                           }}
                         >
                           Beginner
@@ -164,7 +172,7 @@ const AddSkill = () => {
                           value="intermediate"
                           onSelect={(currentValue) => {
                             setSkill({ ...skill, proficiency: currentValue });
-                            setOpen(false);
+                            setOpenProficiency(false);
                           }}
                         >
                           Intermediate
@@ -173,7 +181,7 @@ const AddSkill = () => {
                           value="advanced"
                           onSelect={(currentValue) => {
                             setSkill({ ...skill, proficiency: currentValue });
-                            setOpen(false);
+                            setOpenProficiency(false);
                           }}
                         >
                           Advanced
@@ -182,7 +190,7 @@ const AddSkill = () => {
                           value="expert"
                           onSelect={(currentValue) => {
                             setSkill({ ...skill, proficiency: currentValue });
-                            setOpen(false);
+                            setOpenProficiency(false);
                           }}
                         >
                           Expert
@@ -213,6 +221,7 @@ const AddSkill = () => {
                       proficiency: skill?.proficiency || ""
                     }
                   ]);
+                  setOpenProficiency(false);
                   setOpen(false);
                 }}
               >

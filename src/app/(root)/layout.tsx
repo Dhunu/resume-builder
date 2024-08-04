@@ -21,14 +21,17 @@ export default function RootLayout({
   } = useResume();
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("resume_data") || "{}");
-    setHeader(data.header);
-    setContact(data.contact);
-    setSummary(data.summary);
-    setSkills(data.skills);
-    setProjects(data.projects);
-    setCertifications(data.certifications);
-    setEducation(data.education);
-    setExperience(data.experience);
+
+    if (data.header) {
+      setHeader(data.header);
+      setContact(data.contact);
+      setSummary(data.summary);
+      setSkills(data.skills);
+      setProjects(data.projects);
+      setCertifications(data.certifications);
+      setEducation(data.education);
+      setExperience(data.experience);
+    }
   }, []);
   return (
     <div className="flex min-h-screen w-full flex-col">
