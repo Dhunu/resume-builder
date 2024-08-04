@@ -9,34 +9,21 @@ import Contact from "@/components/resume/Contact";
 import Summary from "@/components/resume/Summary";
 import Skills from "@/components/resume/Skills";
 import Projects from "@/components/resume/Projects";
+import useResumePreview from "@/hooks/useResumePreview";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
-  const { resumeRef } = useResume();
-
-  const [mandatoryFields, setMandatoryFields] = useState<{
-    name: string;
-    title: string;
-    email: string;
-    address: string;
-    phone: string;
-    pincode: string;
-    portfolio: string;
-    description: string;
-  }>({
-    name: "",
-    title: "",
-    email: "",
-    address: "",
-    phone: "",
-    pincode: "",
-    portfolio: "",
-    description: ""
-  });
+  const { show } = useResumePreview();
 
   return (
-    <main className="flex flex-col gap-5 bg-slate-100 pt-10 md:gap-10 2xl:flex-row">
+    <main className="flex flex-col gap-5 bg-slate-100 md:gap-10 2xl:flex-row">
       {/* Resume Editor */}
-      <div className="flex w-full flex-col gap-5 px-5 md:px-10">
+      <div
+        className={cn(
+          "flex w-full flex-col gap-5 px-5 pb-10 pt-5 md:px-10 2xl:pb-5",
+          show && "hidden"
+        )}
+      >
         {/* Mandatory Fields */}
         <div className="space-y-6">
           <ResumeHeader />

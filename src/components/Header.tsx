@@ -16,6 +16,7 @@ import {
 import { AddSkill } from "./resume/Skills";
 import { AddProject } from "./resume/Projects";
 import useDropdownMenu from "@/hooks/useDropdownMenu";
+import useResumePreview from "@/hooks/useResumePreview";
 
 export default function Header() {
   const [saved, setSaved] = useState(false);
@@ -31,6 +32,8 @@ export default function Header() {
     experience,
     resetResume
   } = useResume();
+
+  const { show, setShow } = useResumePreview();
 
   const { open, setOpen } = useDropdownMenu();
 
@@ -100,6 +103,13 @@ export default function Header() {
         </DropdownMenu>
         <Button onClick={handleReset}>Reset</Button>
         <Button onClick={saveToLocalStorage}>Save</Button>
+        <Button
+          disabled={!saved}
+          className="disabled:cursor-not-allowed 2xl:hidden"
+          onClick={() => setShow(!show)}
+        >
+          {show ? "Hide" : "Show"} Preview
+        </Button>
         <Button
           onClick={handlePrint}
           disabled={!saved}

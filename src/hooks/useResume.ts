@@ -41,13 +41,13 @@ type Contact = {
 type Skill = {
   id: number;
   name: string;
-  proficiency: string;
+  proficiency?: Proficiency;
 };
 
 type Project = {
   id: number;
   name: string;
-  features: string[];
+  description: string;
   technologies: string[];
   live_link?: string;
   repo_link?: string;
@@ -98,7 +98,7 @@ const useResume = create<ResumeStore>()((set) => ({
     linkedIn: "https://www.linkedin.com/in/angel-saikia/"
   },
   summary:
-    "I am a Full Stack Web Developer with 3 years of experience in building web applications. I specialize in JavaScript and have worked with React, Node.js, and Express.js. I am passionate about learning new technologies and building scalable applications. I am looking for opportunities to work on challenging projects and grow as a developer.",
+    "I am a Full Stack Web Developer. I specialize in Next.js and have worked with React, Node.js, and Express.js. I am passionate about learning new technologies and building scalable applications. I am looking for opportunities to work on challenging projects and grow as a developer.",
   skills: [
     {
       id: 1,
@@ -113,17 +113,12 @@ const useResume = create<ResumeStore>()((set) => ({
     {
       id: 3,
       name: "Node.js",
-      proficiency: "advanced"
+      proficiency: "intermediate"
     },
     {
       id: 4,
       name: "Next.js",
       proficiency: "intermediate"
-    },
-    {
-      id: 5,
-      name: "Express.js",
-      proficiency: "advanced"
     },
     {
       id: 6,
@@ -134,32 +129,44 @@ const useResume = create<ResumeStore>()((set) => ({
       id: 7,
       name: "Firebase",
       proficiency: "intermediate"
+    },
+    {
+      id: 8,
+      name: "Tailwind CSS",
+      proficiency: "advanced"
     }
   ],
   projects: [
     {
       id: 1,
       name: "Blogify",
-      features: [
-        "User authentication",
-        "Create, update, and delete posts",
-        "Like and comment on posts"
-      ],
-      technologies: ["React", "Node.js", "Express.js", "MongoDB"],
-      live_link: "https://blogify.vercel.app",
+      description: "A bloging website where you can share your experiences",
+      technologies: ["Next.js", "Node.js", "Shadcn UI", "Tailwind CSS"],
+      live_link: "https://blogify.angelsaikia.com",
       repo_link: "https://github.com/Dhunu/blogify"
     },
     {
       id: 2,
       name: "Safar Sathi",
-      features: [
-        "Search for goods",
-        "Track orders in realtime",
-        "Get notifications for order status"
-      ],
-      technologies: ["React", "Node.js", "Express.js", "MongoDB"],
+      description:
+        "A applications to solve the logistics problem in Indian truck industry",
+      technologies: ["Next.js", "Node.js", "Tailwind CSS"],
       live_link: "https://safar-sathi.vercel.app",
       repo_link: "https://github.com/Dhunu/safar-sathi"
+    },
+    {
+      id: 3,
+      name: "Upload File",
+      description: "A simple file upload application",
+      technologies: [
+        "Next.js",
+        "Tailwind CSS",
+        "Clerk",
+        "Firebase Firestore",
+        "Firebase Storage"
+      ],
+      live_link: "https://upload-file-drag-and-drop.angelsaikia.com/",
+      repo_link: "https://github.com/Dhunu/uploadFileDragAndDrop"
     }
   ],
   education: [
@@ -167,7 +174,7 @@ const useResume = create<ResumeStore>()((set) => ({
       id: 1,
       degree: "Bachelor of Science",
       start_date: "2022",
-      end_date: "2025",
+      end_date: "Present",
       field_of_study: "Data Science and Applications",
       institution: "Indian Institute of Information Technology, Madras"
     },
@@ -178,30 +185,22 @@ const useResume = create<ResumeStore>()((set) => ({
       end_date: "2023",
       field_of_study: "Java Backend Development",
       institution: "Masai School"
-    },
-    {
-      id: 3,
-      degree: "Higher Secondary School",
-      start_date: "2014",
-      end_date: "2016",
-      field_of_study: "Science",
-      institution: "Ramanujan Junior College"
     }
   ],
   certifications: [
     {
       id: 1,
-      issue_date: "2019",
-      issued_by: "Coursera",
-      link: "https://www.coursera.org/account/accomplishments/certificate/9J5Z7ZQ7T4JU",
+      issue_date: "Dec 2021",
+      issued_by: "Coursera | IBM",
+      link: "https://www.coursera.org/account/accomplishments/verify/X83GZ7ZTDRK4",
       name: "What is Data Science?"
     },
     {
       id: 2,
-      issue_date: "2020",
-      issued_by: "Coursera",
-      link: "https://www.coursera.org/account/accomplishments/certificate/9J5Z7ZQ7T4JU",
-      name: "Tools of Data Science"
+      issue_date: "Dec 2021",
+      issued_by: "Coursera | IBM",
+      link: "https://www.coursera.org/account/accomplishments/verify/8FE84K78BTHT",
+      name: "Tools for Data Science"
     }
   ],
   experience: [],

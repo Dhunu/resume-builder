@@ -31,6 +31,7 @@ import Link from "next/link";
 import UploadPhoto from "./UploadPhoto";
 import Image from "next/image";
 import { FaTrash } from "react-icons/fa6";
+import { Textarea } from "../ui/textarea";
 
 export default function Projects() {
   const { projects, setProjects } = useResume();
@@ -124,13 +125,7 @@ export default function Projects() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <h3 className="text-base font-normal">Features:</h3>
-                  <ul className="flex list-disc flex-col gap-1 pl-5">
-                    {project.features.map((feature, index) => (
-                      <li className="text-sm font-light" key={feature}>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="text-sm font-light">{project.description}</p>
                 </div>
                 <div className="flex flex-col gap-2">
                   <h3 className="text-base font-normal">Technologies Used:</h3>
@@ -169,9 +164,6 @@ export default function Projects() {
             </div>
           ))}
         </div>
-        <div className="mt-5">
-          <AddProject />
-        </div>
       </div>
     </div>
   );
@@ -184,9 +176,8 @@ export const AddProject = () => {
     resolver: zodResolver(projectSchema),
     defaultValues: {
       id: projects.length + 1,
-      imageUrl: "",
       name: "",
-      features: [],
+      description: "",
       technologies: [],
       live_link: "",
       repo_link: ""
@@ -223,43 +214,6 @@ export const AddProject = () => {
           <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex justify-between">
-                    <FormLabel>Image URL</FormLabel>
-
-                    {field.value && (
-                      <FaTrash
-                        className="h-4 w-4 cursor-pointer"
-                        onClick={() =>
-                          field.onChange({ target: { value: "" } })
-                        }
-                      />
-                    )}
-                  </div>
-                  <FormControl>
-                    {!field.value ? (
-                      <UploadPhoto
-                        setValue={(value) =>
-                          field.onChange({ target: { value } })
-                        }
-                      />
-                    ) : (
-                      <Image
-                        src={field.value}
-                        width={400}
-                        height={200}
-                        alt="photo"
-                        className="mx-auto w-full object-contain"
-                      />
-                    )}
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
@@ -272,26 +226,12 @@ export const AddProject = () => {
             />
             <FormField
               control={form.control}
-              name="features"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Project Features</FormLabel>
                   <FormControl>
-                    <TagsInput
-                      value={field.value}
-                      onChange={field.onChange}
-                      name="features"
-                      placeHolder="Dark Mode, PWA, SSR"
-                      onExisting={(technology) => technology}
-                      beforeAddValidate={(technology, existingTechnologies) => {
-                        if (existingTechnologies.includes(technology)) {
-                          toast.error("Feature already exists");
-                          return false;
-                        }
-                        toast.success("Feature added");
-                        return true;
-                      }}
-                    />
+                    <Textarea {...field} placeholder="A blog application" />
                   </FormControl>
                 </FormItem>
               )}

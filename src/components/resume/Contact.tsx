@@ -50,7 +50,7 @@ export default function Contact() {
             <Label>LinkedIn</Label>
             <Input
               value={contact.linkedIn}
-              placeholder="782003"
+              placeholder="Type your LinkedIn profile URL"
               onChange={(e) => {
                 setContact({ ...contact, linkedIn: e.target.value });
               }}
