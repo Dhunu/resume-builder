@@ -1,6 +1,5 @@
 "use client";
 
-import { Label } from "@radix-ui/react-label";
 import { useState } from "react";
 import { MdDelete } from "react-icons/md";
 
@@ -26,6 +25,18 @@ import {
   CommandItem
 } from "@/components/ui/command";
 import useDropdownMenu from "@/hooks/useDropdownMenu";
+import { useForm } from "react-hook-form";
+import { skillSchema } from "@/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "../ui/form";
 
 export default function Skills() {
   const { skills, setSkills } = useResume();
@@ -38,8 +49,8 @@ export default function Skills() {
     localStorage.setItem("resume_data", JSON.stringify(resume_data));
   };
   return (
-    <div className="mb-10 flex w-full gap-5">
-      <h1 className="flex w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3">
+    <div className="mb-10 flex w-full flex-col gap-2 md:flex-row md:gap-5">
+      <h1 className="hidden w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3 md:flex">
         <div className="-rotate-90">S</div>
         <div className="-rotate-90">K</div>
         <div className="-rotate-90">I</div>
@@ -47,10 +58,21 @@ export default function Skills() {
         <div className="-rotate-90">L</div>
         <div className="-rotate-90">S</div>
       </h1>
-      <div className="flex flex-col">
-        <div className="flex flex-wrap gap-5">
+      <h1 className="flex justify-evenly rounded-lg border bg-neutral-50 py-3 text-base font-semibold uppercase leading-3 md:hidden">
+        <div>S</div>
+        <div>K</div>
+        <div>I</div>
+        <div>L</div>
+        <div>L</div>
+        <div>S</div>
+      </h1>
+      <div className="flex flex-1 flex-col">
+        <div className="flex w-full flex-col gap-2 md:flex-row md:flex-wrap md:gap-5">
           {skills.map((skill, index) => (
-            <div className="flex items-center gap-2" key={index}>
+            <div
+              className="flex w-full items-center justify-between gap-2 md:w-auto"
+              key={index}
+            >
               <div className="left-3 flex items-center gap-2 rounded-lg border bg-neutral-50 p-2 text-base">
                 <span className="font-semibold">{skill.name}</span>
                 <span>-</span>
@@ -87,9 +109,6 @@ export default function Skills() {
             </div>
           ))}
         </div>
-        <div className="mt-5">
-          <AddSkill />
-        </div>
       </div>
     </div>
   );
@@ -97,18 +116,27 @@ export default function Skills() {
 
 export const AddSkill = () => {
   const { skills, setSkills } = useResume();
-  const { open, setOpen } = useDropdownMenu();
+  const { setDropdownOpen } = useDropdownMenu();
+
+  const [open, setOpen] = useState(false);
 
   const [openProficiency, setOpenProficiency] = useState(false);
-  const [skill, setSkill] = useState<{
-    name: string;
-    proficiency: string | undefined;
-  }>({
-    name: "",
-    proficiency: undefined
+
+  const form = useForm<z.infer<typeof skillSchema>>({
+    resolver: zodResolver(skillSchema),
+    defaultValues: {
+      id: skills.length + 1,
+      name: ""
+    }
   });
+
+  const onSubmit = (data: z.infer<typeof skillSchema>) => {
+    setSkills([...skills, data]);
+    setDropdownOpen(false);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild>
         <Button
           className="w-full justify-start font-medium"
@@ -123,113 +151,125 @@ export const AddSkill = () => {
           e.preventDefault();
         }}
       >
-        <div className="flex h-full w-full flex-col gap-5">
-          <h1 className="mb-10 text-center text-xl font-semibold">Add Skill</h1>
+        <Form {...form}>
+          <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+            <h1 className="mb-10 text-center text-xl font-semibold">
+              Add Skill
+            </h1>
+            <div className="flex gap-5">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="React" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="proficiency"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Proficiency</FormLabel>
+                    <FormControl>
+                      <Popover
+                        open={openProficiency}
+                        onOpenChange={setOpenProficiency}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openProficiency}
+                            className={cn(
+                              "w-full justify-between",
+                              field.value && "text-neutral-400"
+                            )}
+                          >
+                            {field.value ? field.value : "Select proficiency"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[221px] p-0">
+                          <Command>
+                            <CommandInput placeholder="Search proficiency..."></CommandInput>
 
-          <div className="flex gap-5">
-            <div className="w-full">
-              <Label>Name</Label>
-              <Input
-                placeholder="React"
-                onChange={(e) => setSkill({ ...skill, name: e.target.value })}
+                            <CommandList>
+                              <CommandEmpty>No proficiency found</CommandEmpty>
+                              <CommandGroup>
+                                <CommandItem
+                                  value="beginner"
+                                  onSelect={(currentValue) => {
+                                    field.onChange(currentValue);
+                                    setOpenProficiency(false);
+                                  }}
+                                >
+                                  Beginner
+                                </CommandItem>
+                                <CommandItem
+                                  value="intermediate"
+                                  onSelect={(currentValue) => {
+                                    field.onChange(currentValue);
+                                    setOpenProficiency(false);
+                                  }}
+                                >
+                                  Intermediate
+                                </CommandItem>
+                                <CommandItem
+                                  value="advanced"
+                                  onSelect={(currentValue) => {
+                                    field.onChange(currentValue);
+                                    setOpenProficiency(false);
+                                  }}
+                                >
+                                  Advanced
+                                </CommandItem>
+                                <CommandItem
+                                  value="expert"
+                                  onSelect={(currentValue) => {
+                                    field.onChange(currentValue);
+                                    setOpenProficiency(false);
+                                  }}
+                                >
+                                  Expert
+                                </CommandItem>
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="w-full">
-              <Label>Proficiency</Label>
-              <Popover open={openProficiency} onOpenChange={setOpenProficiency}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={openProficiency}
-                    className={cn(
-                      "w-full justify-between",
-                      !skill?.proficiency && "text-neutral-400"
-                    )}
-                  >
-                    {skill?.proficiency
-                      ? skill.proficiency
-                      : "Select proficiency"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
-                  <Command>
-                    <CommandInput placeholder="Search proficiency..."></CommandInput>
-
-                    <CommandList>
-                      <CommandEmpty>No proficiency found</CommandEmpty>
-                      <CommandGroup>
-                        <CommandItem
-                          value="beginner"
-                          onSelect={(currentValue) => {
-                            setSkill({ ...skill, proficiency: currentValue });
-                            setOpenProficiency(false);
-                          }}
-                        >
-                          Beginner
-                        </CommandItem>
-                        <CommandItem
-                          value="intermediate"
-                          onSelect={(currentValue) => {
-                            setSkill({ ...skill, proficiency: currentValue });
-                            setOpenProficiency(false);
-                          }}
-                        >
-                          Intermediate
-                        </CommandItem>
-                        <CommandItem
-                          value="advanced"
-                          onSelect={(currentValue) => {
-                            setSkill({ ...skill, proficiency: currentValue });
-                            setOpenProficiency(false);
-                          }}
-                        >
-                          Advanced
-                        </CommandItem>
-                        <CommandItem
-                          value="expert"
-                          onSelect={(currentValue) => {
-                            setSkill({ ...skill, proficiency: currentValue });
-                            setOpenProficiency(false);
-                          }}
-                        >
-                          Expert
-                        </CommandItem>
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-          <div className="mx-auto flex gap-5">
-            <DialogClose asChild>
-              <Button variant="destructive" className="w-20">
-                Cancel
-              </Button>
-            </DialogClose>
-
-            <DialogClose asChild>
+            <div className="flex gap-5">
               <Button
-                className="w-20"
+                type="button"
+                className="w-full"
+                variant="destructive"
                 onClick={() => {
-                  setSkills([
-                    ...skills,
-                    {
-                      id: skills.length + 1,
-                      name: skill?.name || "",
-                      proficiency: skill?.proficiency || ""
-                    }
-                  ]);
-                  setOpenProficiency(false);
                   setOpen(false);
+                  form.reset();
+                  setDropdownOpen(false);
                 }}
               >
-                Save
+                Cancel
               </Button>
-            </DialogClose>
-          </div>
-        </div>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                Add Skill
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

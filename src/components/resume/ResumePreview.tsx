@@ -1,11 +1,13 @@
 import useResume from "@/hooks/useResume";
-import { Link2Icon } from "lucide-react";
+import useResumePreview from "@/hooks/useResumePreview";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import {
   FaGithub,
   FaGlobe,
+  FaLinkedin,
   FaLocationDot,
   FaPhone,
   FaStar
@@ -26,23 +28,27 @@ export default function ResumePreview() {
   } = useResume();
   return (
     <div
-      className="mx-auto mb-5 grid aspect-[1/1.41451613] h-[1200px] shrink-0 grid-cols-3 shadow-lg 2xl:mr-10"
+      className={cn(
+        "mx-auto mb-5 grid aspect-[1/1.41451613] h-[1200px] shrink-0 grid-cols-3 shadow-lg 2xl:sticky 2xl:top-20 2xl:mr-10"
+      )}
       id="resume-preview"
       ref={resumeRef}
     >
       <div className="col-span-1 h-full w-full bg-[#163853] text-white">
         {/* Image */}
-        <div className="flex h-[23%] items-center justify-center">
-          <Image
-            src={header.photo}
-            alt="profile_img"
-            width={200}
-            height={200}
-            className="h-[185px] w-[185px] rounded-full border-[6px] border-white object-cover"
-          />
-        </div>
+        {header.photo && (
+          <div className="flex h-[23%] items-center justify-center">
+            <Image
+              src={header.photo}
+              alt="profile_img"
+              width={200}
+              height={200}
+              className="h-[185px] w-[185px] rounded-full border-[6px] border-white object-cover"
+            />
+          </div>
+        )}
 
-        <div className="mx-8 flex flex-col">
+        <div className={cn("mx-8 flex flex-col", !header.photo && "mt-10")}>
           {/* Contact */}
           <div className="w-full">
             <h2 className="font-lato text-[20px] font-extrabold uppercase leading-[28px] tracking-widest">
@@ -50,7 +56,7 @@ export default function ResumePreview() {
             </h2>
             <div className="mt-1 h-0.5 w-full bg-white" />
 
-            <div className="mt-5 flex h-[120px] flex-col justify-between">
+            <div className="mt-5 flex h-[140px] flex-col justify-between">
               <div className="flex gap-2 text-center">
                 <FaPhone className="h-[14px] w-[14px] self-center" />
                 <p className="text-[13px]">{contact.phone}</p>
@@ -65,10 +71,18 @@ export default function ResumePreview() {
                 <FaLocationDot className="h-[14px] w-[14px] self-center" />
                 <p className="text-[13px]">{contact.location}</p>
               </div>
+              {contact.website && (
+                <div className="flex gap-2 text-center">
+                  <FaGlobe className="h-[14px] w-[14px] self-center" />
+                  <Link href={contact.website} className="text-[13px]">
+                    {contact.website}
+                  </Link>
+                </div>
+              )}
               <div className="flex gap-2 text-center">
-                <FaGlobe className="h-[14px] w-[14px] self-center" />
-                <Link href={contact.website} className="text-[13px]">
-                  {contact.website}
+                <FaLinkedin className="h-[14px] w-[14px] self-center" />
+                <Link href={contact.linkedIn} className="text-[13px]">
+                  {contact.linkedIn.split("/")[4]}
                 </Link>
               </div>
             </div>
@@ -76,48 +90,75 @@ export default function ResumePreview() {
 
           {/* Skills */}
           {skills.length > 0 && (
-            <div className="mt-10 w-full">
+            <div className="mt-5 w-full">
               <h2 className="font-lato text-[20px] font-extrabold uppercase leading-[28px] tracking-widest">
                 SKILLS
               </h2>
               <div className="mt-1 h-0.5 w-full bg-white" />
 
-              <ul className="mt-5 flex list-disc flex-col gap-5">
-                {skills.map((skill, index) => (
-                  <li
-                    key={index}
-                    className="flex items-center justify-between gap-5"
-                  >
-                    <div className="text-sm">{skill.name}</div>
-                    {skill.proficiency && (
-                      <p className="flex items-center gap-1">
-                        {skill.proficiency === "beginner" &&
-                          [1, 1].map((_, index) => (
-                            <FaStar key={index} className="h-[12px] w-[12px]" />
-                          ))}
-                        {skill.proficiency === "intermediate" &&
-                          [1, 1, 1].map((_, index) => (
-                            <FaStar key={index} className="h-[12px] w-[12px]" />
-                          ))}
-                        {skill.proficiency === "advanced" &&
-                          [1, 1, 1, 1].map((_, index) => (
-                            <FaStar key={index} className="h-[12px] w-[12px]" />
-                          ))}
-                        {skill.proficiency === "expert" &&
-                          [1, 1, 1, 1, 1].map((_, index) => (
-                            <FaStar key={index} className="h-[12px] w-[12px]" />
-                          ))}
-                      </p>
-                    )}
-                  </li>
-                ))}
+              <ul className="mt-5 flex flex-col gap-5">
+                {skills
+                  .filter(
+                    (skill) =>
+                      skill.proficiency === "expert" ||
+                      skill.proficiency === "advanced" ||
+                      skill.proficiency === "intermediate" ||
+                      skill.proficiency === "beginner"
+                  )
+                  .map((skill, index) => (
+                    <li
+                      key={index}
+                      className="flex items-center justify-between gap-5"
+                    >
+                      <div className="text-sm">{skill.name}</div>
+                      {skill.proficiency && (
+                        <p className="flex items-center gap-1">
+                          {skill.proficiency === "beginner" &&
+                            [1, 1].map((_, index) => (
+                              <FaStar
+                                key={index}
+                                className="h-[12px] w-[12px]"
+                              />
+                            ))}
+                          {skill.proficiency === "intermediate" &&
+                            [1, 1, 1].map((_, index) => (
+                              <FaStar
+                                key={index}
+                                className="h-[12px] w-[12px]"
+                              />
+                            ))}
+                          {skill.proficiency === "advanced" &&
+                            [1, 1, 1, 1].map((_, index) => (
+                              <FaStar
+                                key={index}
+                                className="h-[12px] w-[12px]"
+                              />
+                            ))}
+                          {skill.proficiency === "expert" &&
+                            [1, 1, 1, 1, 1].map((_, index) => (
+                              <FaStar
+                                key={index}
+                                className="h-[12px] w-[12px]"
+                              />
+                            ))}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                {skills
+                  .filter((skill) => !skill.proficiency)
+                  .map((skill, index) => (
+                    <li key={index} className="text-sm">
+                      {skill.name}
+                    </li>
+                  ))}
               </ul>
             </div>
           )}
 
           {/* Certifications */}
           {certifications.length > 0 && (
-            <div className="mt-10 w-full">
+            <div className="mt-5 w-full">
               <h2 className="font-lato text-[20px] font-extrabold uppercase leading-[28px] tracking-widest">
                 CERTIFICATIONS
               </h2>
@@ -127,15 +168,20 @@ export default function ResumePreview() {
                 {certifications.map((certificate, index) => (
                   <li key={index} className="flex flex-col">
                     <div className="flex items-center justify-between">
-                      <Link
-                        href={certificate.link}
-                        className="text-sm underline"
-                      >
-                        {certificate.name}
-                      </Link>
+                      {certificate.link ? (
+                        <Link
+                          href={certificate.link}
+                          className="text-sm underline"
+                          target="_blank"
+                        >
+                          {certificate.name}
+                        </Link>
+                      ) : (
+                        <p className="text-sm">{certificate.name}</p>
+                      )}
                       <p className="text-xs">{certificate.issue_date}</p>
                     </div>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-300">
                       {certificate.issued_by}
                     </p>
                   </li>
@@ -186,39 +232,35 @@ export default function ResumePreview() {
           <div className="mt-1 h-[2px] w-full bg-[#163853]" />
           <div className="mt-5 flex w-full flex-col gap-5">
             {projects.map((project, index) => (
-              <div key={index} className="flex flex-col gap-2">
-                <div className="flex justify-between">
-                  <h3 className="text-lg font-medium text-[#163853]">
-                    {project.name}
-                  </h3>
-                  <div className="flex gap-5">
-                    {project.live_link && (
-                      <Link href={project.live_link}>
-                        <Link2Icon className="h-4 w-4" />
-                      </Link>
-                    )}
-                    {project.repo_link && (
-                      <Link href={project.repo_link}>
-                        <FaGithub className="h-4 w-4" />
-                      </Link>
-                    )}
-                  </div>
+              <div key={index} className="flex flex-col gap-1">
+                <div className="flex items-center gap-5">
+                  {project.live_link ? (
+                    <Link
+                      href={project.live_link}
+                      target="_blank"
+                      className="text-lg font-medium text-[#163853] underline"
+                    >
+                      {project.name}
+                    </Link>
+                  ) : (
+                    <h3 className="text-lg font-medium text-[#163853]">
+                      {project.name}
+                    </h3>
+                  )}
+                  {project.repo_link && (
+                    <Link href={project.repo_link} target="_blank">
+                      <FaGithub className="h-4 w-4" />
+                    </Link>
+                  )}
                 </div>
-                <ul className="flex flex-col gap-2">
-                  {project.features.map((feature, index) => (
-                    <li key={index} className="flex gap-2">
-                      <span className="text-[13px] text-slate-500">-</span>
-                      <span className="text-[13px] text-slate-500">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <ul className="flex gap-5">
+                <p className="text-[13px] text-slate-500">
+                  {project.description}
+                </p>
+                <ul className="flex list-disc gap-5 pl-4">
                   {project.technologies.map((technology, index) => (
                     <li
                       key={index}
-                      className="rounded-full border border-[#163853] px-1.5 py-0.5 text-[13px] font-medium text-[#163853]"
+                      className="text-xs font-medium text-[#163853]"
                     >
                       {technology}
                     </li>

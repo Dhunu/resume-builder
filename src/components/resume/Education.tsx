@@ -5,7 +5,6 @@ import { MdDelete, MdEditDocument } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TagsInput } from "react-tag-input-component";
 
 import useResume from "@/hooks/useResume";
 import {
@@ -18,66 +17,63 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { projectSchema } from "@/schema";
+import { educationSchema } from "@/schema";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
-  FormMessage
+  FormLabel
 } from "@/components/ui/form";
-import toast from "react-hot-toast";
-import Link from "next/link";
-import { Textarea } from "../ui/textarea";
 import useDropdownMenu from "@/hooks/useDropdownMenu";
 
-export default function Projects() {
-  const { projects, setProjects } = useResume();
+export default function Education() {
+  const { education, setEducation } = useResume();
 
-  const deleteProject = (id: number) => {
-    const newProjects = projects.filter((project) => project.id !== id);
-    setProjects(newProjects);
+  const deleteEducation = (id: number) => {
+    const newEducation = education.filter((edu) => edu.id !== id);
+    setEducation(newEducation);
     const resume_data = JSON.parse(localStorage.getItem("resume_data") || "{}");
-    resume_data.projects = newProjects;
+    resume_data.education = newEducation;
     localStorage.setItem("resume_data", JSON.stringify(resume_data));
   };
 
   return (
     <div className="flex w-full flex-col justify-center gap-2 md:flex-row md:gap-5">
       <h1 className="hidden w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3 md:flex">
-        <div className="-rotate-90">P</div>
-        <div className="-rotate-90">R</div>
-        <div className="-rotate-90">O</div>
-        <div className="-rotate-90">J</div>
         <div className="-rotate-90">E</div>
+        <div className="-rotate-90">D</div>
+        <div className="-rotate-90">U</div>
         <div className="-rotate-90">C</div>
+        <div className="-rotate-90">A</div>
         <div className="-rotate-90">T</div>
-        <div className="-rotate-90">S</div>
+        <div className="-rotate-90">I</div>
+        <div className="-rotate-90">O</div>
+        <div className="-rotate-90">N</div>
       </h1>
       <h1 className="flex justify-evenly rounded-lg border bg-neutral-50 py-3 text-base font-semibold uppercase leading-3 md:hidden">
-        <div>P</div>
-        <div>R</div>
-        <div>O</div>
-        <div>J</div>
         <div>E</div>
+        <div>D</div>
+        <div>U</div>
         <div>C</div>
+        <div>A</div>
         <div>T</div>
-        <div>S</div>
+        <div>I</div>
+        <div>O</div>
+        <div>N</div>
       </h1>
       <div className="flex flex-1 flex-col">
         <div className="flex flex-wrap gap-2 md:gap-5">
-          {projects.map((project, index) => (
+          {education.map((edu, index) => (
             <div
               className="flex w-full justify-start gap-3 rounded-lg border bg-neutral-50 px-4 py-2 text-base"
               key={index}
             >
               <div className="flex flex-1 flex-col gap-3">
                 <div className="flex w-full justify-between">
-                  <h2 className="text-lg font-medium">{project.name}</h2>
+                  <h2 className="text-lg font-medium">{edu.degree}</h2>
                   <div className="flex gap-2 md:gap-5">
-                    <EditProject id={project.id} />
+                    <EditEducation id={edu.id} />
                     <Dialog>
                       <DialogTrigger asChild>
                         <MdDelete className="h-5 w-5 cursor-pointer" />
@@ -86,7 +82,7 @@ export default function Projects() {
                         <DialogHeader className="flex flex-row">
                           Are you sure you want to delete
                           <span className="mx-1 font-semibold">
-                            {project.name}
+                            {edu.degree}
                           </span>{" "}
                           ?
                         </DialogHeader>
@@ -97,7 +93,7 @@ export default function Projects() {
                           <DialogClose asChild>
                             <Button
                               variant="destructive"
-                              onClick={() => deleteProject(project.id)}
+                              onClick={() => deleteEducation(edu.id)}
                             >
                               Delete
                             </Button>
@@ -107,43 +103,24 @@ export default function Projects() {
                     </Dialog>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <h3 className="text-base font-normal">Features:</h3>
-                  <p className="text-sm font-light">{project.description}</p>
+                <div className="flex gap-2 text-base md:items-center">
+                  <h3 className="font-medium">Field of Study:</h3>
+                  <p className="text-sm font-light">{edu.field_of_study}</p>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <h3 className="text-base font-normal">Technologies Used:</h3>
-                  <ul className="flex list-disc flex-col gap-1 pl-5">
-                    {project.technologies.map((technology, index) => (
-                      <li className="text-sm font-light" key={technology}>
-                        {technology}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="flex gap-2 text-base md:items-center">
+                  <h3 className="font-medium">Institution:</h3>
+                  <p className="text-sm font-light">{edu.institution}</p>
                 </div>
-                {project.live_link && (
-                  <div className="flex flex-col gap-2 md:flex-row md:items-center">
-                    <h3 className="text-base font-normal">Live Link:</h3>
-                    <Link
-                      href={project.live_link}
-                      className="truncate text-sm underline"
-                    >
-                      {project.live_link}
-                    </Link>
+                <div className="flex gap-5">
+                  <div className="flex items-center gap-2 text-base">
+                    <h3 className="font-medium">Start Date:</h3>
+                    <p className="text-sm font-light">{edu.start_date}</p>
                   </div>
-                )}
-
-                {project.repo_link && (
-                  <div className="flex flex-col gap-2 md:flex-row md:items-center">
-                    <h3 className="text-base font-normal">Repository Link:</h3>
-                    <Link
-                      href={project.repo_link}
-                      className="text-sm underline"
-                    >
-                      {project.repo_link}
-                    </Link>
+                  <div className="flex items-center gap-2 text-base">
+                    <h3 className="font-medium">End Date:</h3>
+                    <p className="text-sm font-light">{edu.end_date}</p>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           ))}
@@ -153,28 +130,28 @@ export default function Projects() {
   );
 }
 
-export const AddProject = () => {
-  const { projects, setProjects } = useResume();
-  const { dropdownOpen, setDropdownOpen } = useDropdownMenu();
-
-  const form = useForm<z.infer<typeof projectSchema>>({
-    resolver: zodResolver(projectSchema),
-    defaultValues: {
-      id: projects.length + 1,
-      name: "",
-      description: "",
-      technologies: [],
-      live_link: "",
-      repo_link: ""
-    }
-  });
+export const AddEducation = () => {
+  const { education, setEducation } = useResume();
+  const { setDropdownOpen } = useDropdownMenu();
 
   const [open, setOpen] = useState(false);
 
-  const onSubmit = (data: z.infer<typeof projectSchema>) => {
-    setProjects([...projects, data]);
+  const form = useForm<z.infer<typeof educationSchema>>({
+    resolver: zodResolver(educationSchema),
+    defaultValues: {
+      id: education.length + 1,
+      degree: "",
+      field_of_study: "",
+      institution: "",
+      start_date: "",
+      end_date: ""
+    }
+  });
+
+  const onSubmit = (data: z.infer<typeof educationSchema>) => {
+    setEducation([...education, data]);
     const resume_data = JSON.parse(localStorage.getItem("resume_data") || "{}");
-    resume_data.projects = [...projects, data];
+    resume_data.education = [...education, data];
     localStorage.setItem("resume_data", JSON.stringify(resume_data));
     setOpen(false);
     form.reset();
@@ -189,123 +166,92 @@ export const AddProject = () => {
           size="sm"
           variant="ghost"
         >
-          {projects.length === 0 ? "Add Project" : "Add Another Project"}
+          {education.length === 0 ? "Add Education" : "Add Another Education"}
         </Button>
       </DialogTrigger>
-      <DialogContent
-        onInteractOutside={(e) => {
-          e.preventDefault();
-        }}
-        className="h-full max-h-[80vh] overflow-y-scroll py-5"
-      >
+      <DialogContent className="h-full max-h-[80vh] overflow-y-scroll py-5">
         <h2 className="w-full text-center text-2xl font-semibold">
-          Project Details
+          Education Details
         </h2>
         <Form {...form}>
           <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
-              name="name"
+              name="degree"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Degree</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Blogify" />
+                    <Input {...field} placeholder="Bachelor of Science" />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="description"
+              name="field_of_study"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Field of Study</FormLabel>
                   <FormControl>
-                    <Textarea {...field} placeholder="A blog application" />
+                    <Input
+                      {...field}
+                      placeholder="Data Science and Application"
+                    />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
 
             <FormField
               control={form.control}
-              name="technologies"
+              name="institution"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Technologies</FormLabel>
+                  <FormLabel>Institution</FormLabel>
                   <FormControl>
-                    <TagsInput
-                      value={field.value}
-                      onChange={field.onChange}
-                      name="technologies"
-                      placeHolder="React.js, Next.js, TailwindCSS"
-                      onExisting={(technology) => technology}
-                      beforeAddValidate={(technology, existingTechnologies) => {
-                        if (existingTechnologies.includes(technology)) {
-                          toast.error("Technology already exists");
-                          return false;
-                        }
-                        toast.success("Technology added");
-                        return true;
-                      }}
+                    <Input
+                      {...field}
+                      placeholder="Indian Institute of Information Technology, Madras"
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="live_link"
+              name="start_date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Live Link</FormLabel>
+                  <FormLabel>Start Date</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="https://blogify.angelsaikia.com"
-                    />
+                    <Input {...field} placeholder="2022" />
                   </FormControl>
-                  <FormDescription className="text-xs">
-                    Link to the live version of the project
-                  </FormDescription>
-                  <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="repo_link"
+              name="end_date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Repository Link</FormLabel>
+                  <FormLabel>End Date</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="https://github.com/blogify"
-                    />
+                    <Input {...field} placeholder="Present" />
                   </FormControl>
-                  <FormDescription className="text-xs">
-                    Link to the repository of the project
-                  </FormDescription>
-                  <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex gap-5">
               <Button
+                className="w-full"
+                size="sm"
                 variant="destructive"
-                type="button"
                 onClick={() => {
                   setOpen(false);
                   form.reset();
                   setDropdownOpen(false);
                 }}
-                size="sm"
-                className="w-full"
               >
                 Cancel
               </Button>
@@ -320,24 +266,24 @@ export const AddProject = () => {
   );
 };
 
-export const EditProject = ({ id }: { id: number }) => {
-  const { projects, setProjects } = useResume();
+export const EditEducation = ({ id }: { id: number }) => {
+  const { education, setEducation } = useResume();
 
-  const project = projects.find((project) => project.id === id);
+  const edu = education.find((edu) => edu.id === id);
 
-  const form = useForm<z.infer<typeof projectSchema>>({
-    resolver: zodResolver(projectSchema),
+  const form = useForm<z.infer<typeof educationSchema>>({
+    resolver: zodResolver(educationSchema),
     defaultValues: {
-      ...project
+      ...edu
     }
   });
 
   const [open, setOpen] = useState(false);
 
-  const onSubmit = (data: z.infer<typeof projectSchema>) => {
-    setProjects([...projects, data]);
+  const onSubmit = (data: z.infer<typeof educationSchema>) => {
+    setEducation([...education, data]);
     const resume_data = JSON.parse(localStorage.getItem("resume_data") || "{}");
-    resume_data.projects = [...projects, data];
+    resume_data.education = [...education, data];
     localStorage.setItem("resume_data", JSON.stringify(resume_data));
     setOpen(false);
   };
@@ -347,7 +293,7 @@ export const EditProject = ({ id }: { id: number }) => {
       <DialogTrigger asChild>
         <MdEditDocument className="h-5 w-5 cursor-pointer" />
       </DialogTrigger>
-      <DialogContent className="h-full max-h-[80vh] overflow-y-scroll py-10">
+      <DialogContent className="h-full max-h-[80vh] overflow-y-scroll py-5">
         <h2 className="w-full text-center text-2xl font-semibold">
           Project Details
         </h2>
@@ -355,24 +301,27 @@ export const EditProject = ({ id }: { id: number }) => {
           <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
-              name="name"
+              name="degree"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Name</FormLabel>
+                  <FormLabel>Degree</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Blogify" />
+                    <Input {...field} placeholder="Bachelor of Science" />
                   </FormControl>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="description"
+              name="field_of_study"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Features</FormLabel>
+                  <FormLabel>Field of Study</FormLabel>
                   <FormControl>
-                    <Textarea {...field} placeholder="A blog application" />
+                    <Input
+                      {...field}
+                      placeholder="Data Science and Application"
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -380,25 +329,14 @@ export const EditProject = ({ id }: { id: number }) => {
 
             <FormField
               control={form.control}
-              name="technologies"
+              name="institution"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Technologies</FormLabel>
+                  <FormLabel>Institution</FormLabel>
                   <FormControl>
-                    <TagsInput
-                      value={field.value}
-                      onChange={field.onChange}
-                      name="technologies"
-                      placeHolder="React.js, Next.js, TailwindCSS"
-                      onExisting={(technology) => technology}
-                      beforeAddValidate={(technology, existingTechnologies) => {
-                        if (existingTechnologies.includes(technology)) {
-                          toast.error("Technology already exists");
-                          return false;
-                        }
-                        toast.success("Technology added");
-                        return true;
-                      }}
+                    <Input
+                      {...field}
+                      placeholder="Indian Institute of Information Technology, Madras"
                     />
                   </FormControl>
                 </FormItem>
@@ -406,30 +344,24 @@ export const EditProject = ({ id }: { id: number }) => {
             />
             <FormField
               control={form.control}
-              name="live_link"
+              name="start_date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Live Link</FormLabel>
+                  <FormLabel>Start Date</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="https://blogify.angelsaikia.com"
-                    />
+                    <Input {...field} placeholder="2022" />
                   </FormControl>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="repo_link"
+              name="end_date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Repository Link</FormLabel>
+                  <FormLabel>End Date</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="https://github.com/blogify"
-                    />
+                    <Input {...field} placeholder="Present" />
                   </FormControl>
                 </FormItem>
               )}
