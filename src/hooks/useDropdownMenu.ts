@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
 interface DropdownMenuState {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  dropdownOpen: boolean;
+  setDropdownOpen: (open: boolean) => void;
 }
 
 const useDropdownMenu = create<DropdownMenuState>()((set) => ({
-  open: false,
-  setOpen: (open) => set({ open })
+  dropdownOpen: false,
+  setDropdownOpen: (dropdownOpen) => set({ dropdownOpen })
 }));
 
 export default useDropdownMenu;

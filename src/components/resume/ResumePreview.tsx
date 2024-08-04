@@ -26,13 +26,10 @@ export default function ResumePreview() {
     certifications,
     experience
   } = useResume();
-
-  const { show, setShow } = useResumePreview();
   return (
     <div
       className={cn(
-        "mx-auto mb-5 hidden aspect-[1/1.41451613] h-[1200px] shrink-0 grid-cols-3 pt-5 shadow-lg 2xl:sticky 2xl:top-20 2xl:mr-10 2xl:grid",
-        show && "grid"
+        "mx-auto mb-5 grid aspect-[1/1.41451613] h-[1200px] shrink-0 grid-cols-3 shadow-lg 2xl:sticky 2xl:top-20 2xl:mr-10"
       )}
       id="resume-preview"
       ref={resumeRef}
@@ -171,16 +168,20 @@ export default function ResumePreview() {
                 {certifications.map((certificate, index) => (
                   <li key={index} className="flex flex-col">
                     <div className="flex items-center justify-between">
-                      <Link
-                        href={certificate.link}
-                        className="text-sm underline"
-                        target="_blank"
-                      >
-                        {certificate.name}
-                      </Link>
+                      {certificate.link ? (
+                        <Link
+                          href={certificate.link}
+                          className="text-sm underline"
+                          target="_blank"
+                        >
+                          {certificate.name}
+                        </Link>
+                      ) : (
+                        <p className="text-sm">{certificate.name}</p>
+                      )}
                       <p className="text-xs">{certificate.issue_date}</p>
                     </div>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-300">
                       {certificate.issued_by}
                     </p>
                   </li>

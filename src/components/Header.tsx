@@ -17,6 +17,17 @@ import { AddSkill } from "./resume/Skills";
 import { AddProject } from "./resume/Projects";
 import useDropdownMenu from "@/hooks/useDropdownMenu";
 import useResumePreview from "@/hooks/useResumePreview";
+import { AddEducation } from "./resume/Education";
+import { AddCertification } from "./resume/Certifications";
+import { AddExperience } from "./resume/Experience";
+import MobileMenu from "./MobileMenu";
+import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger
+} from "./ui/dialog";
 
 export default function Header() {
   const [saved, setSaved] = useState(false);
@@ -34,8 +45,7 @@ export default function Header() {
   } = useResume();
 
   const { show, setShow } = useResumePreview();
-
-  const { open, setOpen } = useDropdownMenu();
+  const { dropdownOpen, setDropdownOpen } = useDropdownMenu();
 
   const saveToLocalStorage = () => {
     const data = {
@@ -70,12 +80,18 @@ export default function Header() {
       <h1 className="font-serif text-lg font-bold sm:text-xl lg:text-2xl 2xl:text-3xl">
         Resume-Builder
       </h1>
-      <div className="flex gap-5">
-        <DropdownMenu open={open} onOpenChange={() => setOpen(!open)}>
-          <DropdownMenuTrigger asChild>
+      <div className="hidden gap-5 md:flex">
+        <DropdownMenu
+          open={dropdownOpen}
+          onOpenChange={() => setDropdownOpen(!dropdownOpen)}
+        >
+          <DropdownMenuTrigger
+            asChild
+            className={cn(show ? "hidden" : "block")}
+          >
             <Button>Add Section</Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="flex w-full flex-col gap-1">
+          <DropdownMenuContent className="hidden w-full flex-col gap-1 md:flex">
             <DropdownMenuLabel className="text-center">
               Sections
             </DropdownMenuLabel>
@@ -86,23 +102,40 @@ export default function Header() {
             <DropdownMenuItem asChild>
               <AddProject />
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log("Add Education")}>
-              Education
+            <DropdownMenuItem asChild>
+              <AddEducation />
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log("Add Certifications")}>
-              Certifications
+            <DropdownMenuItem asChild>
+              <AddCertification />
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log("Add Experience")}>
-              Experience
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => console.log("Add Custom")}>
-              Custom
+            <DropdownMenuItem asChild>
+              <AddExperience />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button onClick={handleReset}>Reset</Button>
-        <Button onClick={saveToLocalStorage}>Save</Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Reset</Button>
+          </DialogTrigger>
+          <DialogContent className="flex flex-col items-center">
+            <h1 className="text-2xl font-bold">Are you sure?</h1>
+            <p className="text-lg">
+              This will remove all the data from the resume.
+            </p>
+            <div className="flex gap-5">
+              <Button onClick={handleReset} variant="destructive">
+                Yes
+              </Button>
+              <Button>Cancel</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        <Button
+          onClick={saveToLocalStorage}
+          className={cn(show ? "hidden" : "block")}
+        >
+          Save
+        </Button>
         <Button
           disabled={!saved}
           className="disabled:cursor-not-allowed 2xl:hidden"
@@ -113,11 +146,15 @@ export default function Header() {
         <Button
           onClick={handlePrint}
           disabled={!saved}
-          className="disabled:cursor-not-allowed"
+          className={cn(
+            "block disabled:cursor-not-allowed",
+            show ? "block" : "hidden md:block"
+          )}
         >
           Print
         </Button>
       </div>
+      <MobileMenu />
     </div>
   );
 }

@@ -67,7 +67,7 @@ type Certification = {
   name: string;
   issued_by: string;
   issue_date: string;
-  link: string;
+  link?: string;
 };
 
 type Experience = {

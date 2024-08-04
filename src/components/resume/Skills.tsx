@@ -49,8 +49,8 @@ export default function Skills() {
     localStorage.setItem("resume_data", JSON.stringify(resume_data));
   };
   return (
-    <div className="mb-10 flex w-full gap-5">
-      <h1 className="flex w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3">
+    <div className="mb-10 flex w-full flex-col gap-2 md:flex-row md:gap-5">
+      <h1 className="hidden w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3 md:flex">
         <div className="-rotate-90">S</div>
         <div className="-rotate-90">K</div>
         <div className="-rotate-90">I</div>
@@ -58,10 +58,21 @@ export default function Skills() {
         <div className="-rotate-90">L</div>
         <div className="-rotate-90">S</div>
       </h1>
+      <h1 className="flex justify-evenly rounded-lg border bg-neutral-50 py-3 text-base font-semibold uppercase leading-3 md:hidden">
+        <div>S</div>
+        <div>K</div>
+        <div>I</div>
+        <div>L</div>
+        <div>L</div>
+        <div>S</div>
+      </h1>
       <div className="flex flex-1 flex-col">
-        <div className="flex flex-wrap gap-5">
+        <div className="flex w-full flex-col gap-2 md:flex-row md:flex-wrap md:gap-5">
           {skills.map((skill, index) => (
-            <div className="flex items-center gap-2" key={index}>
+            <div
+              className="flex w-full items-center justify-between gap-2 md:w-auto"
+              key={index}
+            >
               <div className="left-3 flex items-center gap-2 rounded-lg border bg-neutral-50 p-2 text-base">
                 <span className="font-semibold">{skill.name}</span>
                 <span>-</span>
@@ -105,7 +116,9 @@ export default function Skills() {
 
 export const AddSkill = () => {
   const { skills, setSkills } = useResume();
-  const { setOpen } = useDropdownMenu();
+  const { setDropdownOpen } = useDropdownMenu();
+
+  const [open, setOpen] = useState(false);
 
   const [openProficiency, setOpenProficiency] = useState(false);
 
@@ -119,11 +132,11 @@ export const AddSkill = () => {
 
   const onSubmit = (data: z.infer<typeof skillSchema>) => {
     setSkills([...skills, data]);
-    setOpen(false);
+    setDropdownOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild>
         <Button
           className="w-full justify-start font-medium"
@@ -239,7 +252,11 @@ export const AddSkill = () => {
                 type="button"
                 className="w-full"
                 variant="destructive"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  form.reset();
+                  setDropdownOpen(false);
+                }}
               >
                 Cancel
               </Button>

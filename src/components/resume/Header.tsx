@@ -9,14 +9,22 @@ export default function ResumeHeader() {
   const { header, setHeader } = useResume();
 
   return (
-    <div className="mb-10 flex justify-center gap-5">
-      <h1 className="flex w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3">
+    <div className="mb-10 flex flex-col justify-center gap-2 md:flex-row md:gap-5">
+      <h1 className="hidden w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3 md:flex">
         <div className="-rotate-90">H</div>
         <div className="-rotate-90">E</div>
         <div className="-rotate-90">A</div>
         <div className="-rotate-90">D</div>
         <div className="-rotate-90">E</div>
         <div className="-rotate-90">R</div>
+      </h1>
+      <h1 className="flex justify-evenly rounded-lg border bg-neutral-50 py-3 text-base font-semibold uppercase leading-3 md:hidden">
+        <div>H</div>
+        <div>E</div>
+        <div>A</div>
+        <div>D</div>
+        <div>E</div>
+        <div>R</div>
       </h1>
       <div className="flex flex-1 flex-col gap-5">
         <div className="w-full">

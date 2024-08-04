@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 export default function Summary() {
   const { summary, setSummary } = useResume();
   return (
-    <div className="mb-10 flex justify-center gap-5">
-      <h1 className="flex w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3">
+    <div className="mb-10 flex flex-col justify-center gap-2 md:flex-row md:gap-5">
+      <h1 className="hidden w-10 flex-col-reverse items-center justify-evenly rounded-lg border bg-neutral-50 p-1 text-base font-semibold uppercase leading-3 md:flex">
         <div className="-rotate-90">S</div>
         <div className="-rotate-90">U</div>
         <div className="-rotate-90">M</div>
@@ -15,6 +15,15 @@ export default function Summary() {
         <div className="-rotate-90">A</div>
         <div className="-rotate-90">R</div>
         <div className="-rotate-90">Y</div>
+      </h1>
+      <h1 className="flex justify-evenly rounded-lg border bg-neutral-50 py-3 text-base font-semibold uppercase leading-3 md:hidden">
+        <div>S</div>
+        <div>U</div>
+        <div>M</div>
+        <div>M</div>
+        <div>A</div>
+        <div>R</div>
+        <div>Y</div>
       </h1>
       <div className="flex flex-1 flex-col gap-5">
         <div className="flex h-full w-full flex-col">
