@@ -325,17 +325,10 @@ export const EditProject = ({ id }: { id: number }) => {
 
   const project = projects.find((project) => project.id === id);
 
-  if (!project) return;
-
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
-      id: project.id,
-      name: project.name,
-      description: project.description,
-      technologies: project.technologies,
-      live_link: project.live_link,
-      repo_link: project.repo_link
+      ...project
     }
   });
 

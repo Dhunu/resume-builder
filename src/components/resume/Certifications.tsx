@@ -264,8 +264,6 @@ export const EditCertification = ({ id }: { id: number }) => {
     (certification) => certification.id === id
   );
 
-  if (!certification) return;
-
   const form = useForm<z.infer<typeof certificationSchema>>({
     resolver: zodResolver(certificationSchema),
     defaultValues: {

@@ -269,8 +269,6 @@ export const EditExperience = ({ id }: { id: number }) => {
 
   const exp = experience.find((exp) => exp.id === id);
 
-  if (!exp) return;
-
   const form = useForm<z.infer<typeof experienceSchema>>({
     resolver: zodResolver(experienceSchema),
     defaultValues: {

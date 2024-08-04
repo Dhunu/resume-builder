@@ -32,7 +32,16 @@ export default function RootLayout({
       setEducation(data.education);
       setExperience(data.experience);
     }
-  }, []);
+  }, [
+    setHeader,
+    setContact,
+    setSummary,
+    setSkills,
+    setProjects,
+    setCertifications,
+    setEducation,
+    setExperience
+  ]);
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />

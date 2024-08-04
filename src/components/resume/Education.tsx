@@ -271,8 +271,6 @@ export const EditEducation = ({ id }: { id: number }) => {
 
   const edu = education.find((edu) => edu.id === id);
 
-  if (!edu) return;
-
   const form = useForm<z.infer<typeof educationSchema>>({
     resolver: zodResolver(educationSchema),
     defaultValues: {
