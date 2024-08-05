@@ -12,9 +12,19 @@ const fontRoboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Resume Builder - A simple resume builder",
+  metadataBase: new URL("https://resume-builder.angelsaikia.com"),
+  title: "Resume Builder - Build resume in seconds",
   description:
-    "A simple resume builder, build your resume in minutes, download it as PDF"
+    "A simple resume builder, build your resume in minutes, download it as PDF",
+  openGraph: {
+    title: "Resume Builder - Build resume in seconds",
+    description:
+      "A simple resume builder, build your resume in minutes, download it as PDF",
+    type: "website",
+    locale: "en_IN",
+    url: "https://resume-builder.angelsaikia.com",
+    siteName: "Resume Builder"
+  }
 };
 
 export default function RootLayout({

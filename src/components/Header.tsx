@@ -28,6 +28,7 @@ import {
   DialogHeader,
   DialogTrigger
 } from "./ui/dialog";
+import Image from "next/image";
 
 export default function Header() {
   const [saved, setSaved] = useState(false);
@@ -77,9 +78,21 @@ export default function Header() {
   };
   return (
     <div className="fixed z-10 flex h-16 w-full items-center justify-between bg-white px-5 md:px-10">
-      <h1 className="font-serif text-lg font-bold sm:text-xl lg:text-2xl 2xl:text-3xl">
-        Resume-Builder
-      </h1>
+      <Image
+        src="/images/logo.png"
+        alt="logo"
+        width={200}
+        height={50}
+        className="hidden lg:block"
+      />
+      <Image
+        src="/images/logo-icon.png"
+        alt="logo"
+        width={35}
+        height={35}
+        className="lg:hidden"
+      />
+
       <div className="hidden gap-5 md:flex">
         <DropdownMenu
           open={dropdownOpen}
