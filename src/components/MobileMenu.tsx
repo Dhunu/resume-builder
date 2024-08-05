@@ -24,6 +24,7 @@ import useDropdownMenu from "@/hooks/useDropdownMenu";
 import useResumePreview from "@/hooks/useResumePreview";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import useResume from "@/hooks/useResume";
+import Image from "next/image";
 
 export default function MobileMenu() {
   const [saved, setSaved] = useState(false);
@@ -78,10 +79,10 @@ export default function MobileMenu() {
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <h1 className="font-serif text-lg font-bold sm:text-xl lg:text-2xl 2xl:text-3xl">
-            Resume-Builder
-          </h1>
-          <div className="mt-5 flex flex-col gap-5">
+          <div className="flex w-full items-center justify-center">
+            <Image src="/images/logo.png" alt="logo" width={200} height={50} />
+          </div>
+          <div className="flex flex-col gap-5 pt-10">
             <DropdownMenu
               open={dropdownOpen}
               onOpenChange={() => setDropdownOpen(!dropdownOpen)}
