@@ -4,6 +4,8 @@ import { Toaster } from "react-hot-toast";
 
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import CustomClerkProvider from "@/providers/CustomClerkProvider";
 
 const fontRoboto = Roboto({
   subsets: ["latin"],
@@ -33,16 +35,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={cn(
-          "min-h-screen font-roboto antialiased",
-          fontRoboto.variable
-        )}
-      >
-        <Toaster />
-        {children}
-      </body>
-    </html>
+    <CustomClerkProvider>
+      <html lang="en">
+        <body
+          className={cn(
+            "min-h-screen font-roboto antialiased",
+            fontRoboto.variable
+          )}
+        >
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Toaster />
+            {children}
+          </ThemeProvider>
+        </body>
+      </html>
+    </CustomClerkProvider>
   );
 }

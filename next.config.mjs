@@ -4,6 +4,9 @@ const nextConfig = {
     remotePatterns: [
       {
         hostname: "firebasestorage.googleapis.com"
+      },
+      {
+        hostname: "images.unsplash.com"
       }
     ]
   }
